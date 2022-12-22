@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}  
-<table id="Radios" class="table table-striped">
+<table id="Assets" class="table table-striped">
     <thead>
       <tr>
         <th>Radio ID</th>
@@ -11,12 +11,12 @@
       </tr>
     </thead>
     <tbody>
-      {% for radio in radios %}
+      {% for asset in assets %}
         <tr>
-          <td>{{ radio.id }}</td>
-          <td>{{ radio.radio_type }}</td>
-          <td>{{ radio.radio_status }}</td>
-          <td><button type="button" onclick="document.location.href='/{{radio.id}}/edit/'">Edit</button>
+          <td>{{ asset.id }}</td>
+          <td>{{ asset.asset_type }}</td>
+          <td>{{ asset.asset_status }}</td>
+          <td><button type="button" onclick="document.location.href='/{{asset.id}}/edit/'">Edit</button>
           </td>
         </tr>
       {% endfor %}

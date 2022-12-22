@@ -99,3 +99,17 @@ def delete(id):
     conn.close()
     flash('Asset "{}" was successfully deleted!'.format(id))
     return redirect(url_for('index'))
+
+@app.route('/staff/', methods=('GET', 'POST'))
+def staff():
+    conn = get_db_connection()
+    if request.method == 'POST':
+        pass
+    staff = conn.execute('SELECT * FROM staffs').fetchall()
+    conn.close()
+    return render_template('staff.html', staffs=staff)
+
+
+
+
+
