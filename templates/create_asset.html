@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Create Asset {% endblock %}</h1>
+    <form method="POST">
+       <label for="title">ID</label>
+       <br>
+       <input type="text" name="id"
+              placeholder="Asset ID"
+              value="{{ request.form['id'] }}"></input>
+       <br>
+
+       <label for="type">Asset Type</label>
+       <br>
+       <select id="asset_type", name="asset_type">
+              <option value="mobile">Base Station</option>
+              <option value="portable">Handheld</option>
+              <option value="surv">Survelance</option>
+              <option value="dring">D-Ring</option>
+              <option value="headset">Headset</option>
+              <option value="speakermic">Speaker Mic</option>
+       </select>
+       <br>
+       <label for="status">asset Status</label>
+       <br>
+       <select id="asset_status" name="asset_status">
+              <option value="available">Available</option>
+              <option value="good">Good</option>
+              <option value="damaged">Damaged</option>
+              <option value="checkedout">Checked Out</option>
+       </select>
+       <br>
+       <button type="submit">Submit</button>
+    </form>
+{% endblock %}

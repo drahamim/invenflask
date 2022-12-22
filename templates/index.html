@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Asset Total "{{ asset_total }}" {% endblock %}</h1>
+<table id="Status" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Count</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset_type, count in asset_type %}
+        <tr>
+          <td>{{ asset_type }}</td>
+          <td>{{ count }}</td>
+          </td>
+        </tr>
+      {% endfor %}
+      {% for asset_status, count in asset_status %}
+        <tr>
+          <td>{{ asset_status }}</td>
+          <td>{{ count }}</td>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
