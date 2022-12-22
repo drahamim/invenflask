@@ -26,8 +26,8 @@ CREATE TABLE staffs(
 
 
 CREATE TABLE checkouts(
-	radioid text NOT NULL,
-	headsetid text NOT NULL,
+	assetid text NOT NULL,
+	accessoryid text NOT NULL,
 	staffid text NOT NULL,
 	department text NOT NULL,
 	timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -36,7 +36,7 @@ CREATE TABLE checkouts(
 
 
 CREATE TABLE history(
-	radioid text NOT NULL,
+	assetid text NOT NULL,
 	staffid text NOT NULL,
 	headsetid text NOT NULL,
 	department text NOT NULL,
