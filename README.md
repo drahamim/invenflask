@@ -1,4 +1,4 @@
-# flaskentory
+# Invenflask
 
 
 ## Setup
