@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Edit "{{ asset['id'] }}" {% endblock %}</h1>
+    <form method="post">
+        <label for="type">Asset Type</label>
+       <br>
+       <select id="asset_type", name="asset_type">
+              <option value="mobile">Base Station</option>
+              <option value="portable">Handheld</option>
+              <option value="surv">Surveillance</option>
+              <option value="dring">D-Ring</option>
+              <option value="headset">Headset</option>
+              <option value="speakermic">Speaker Mic</option>
+       </select>
+       <br>
+       <label for="status">Asset Status</label>
+       <br>
+       <select id="asset_status" name="asset_status">
+              <option value="available">Available</option>
+              <option value="good">Good</option>
+              <option value="damaged">Damaged</option>
+              <option value="checkedout">Checked Out</option>
+       </select>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+    <hr>
+    <form action="{{ url_for('delete', id=asset['id']) }}" method="POST">
+        <input type="submit" value="Delete Asset"
+                onclick="return confirm('Are you sure you want to delete this asset?')">
+    </form>
+{% endblock %}

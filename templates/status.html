@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}  
+<table id="Radios" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Radio ID</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Edit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for radio in radios %}
+        <tr>
+          <td>{{ radio.id }}</td>
+          <td>{{ radio.radio_type }}</td>
+          <td>{{ radio.radio_status }}</td>
+          <td><button type="button" onclick="document.location.href='/{{radio.id}}/edit/'">Edit</button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
