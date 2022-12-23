@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <title>{% block title %} {% endblock %}- AssetCheckout</title>
     <style>
-        .posts {
-            padding: 10px;
-            margin: 5px;
-            background-color: #f3f3f3
-        }
-
         nav a {
             color: #d64161;
             font-size: 2em;
-            margin-left: 20px;
+            margin-left: 5px;
             text-decoration: none;
+        
+            
         }
+        nav a:not(:first-child):before {
+        content: " | ";
+        }
+
         .alert {
             padding: 20px;
             margin: 5px;
@@ -25,11 +25,19 @@
     </style>
 </head>
 <body>
-    <nav>
+    <nav>    
         <a href="{{ url_for('index') }}">Home</a>
         <a href="{{ url_for('create_asset') }}">Create Asset</a>
+        <a href="{{ url_for('checkin') }}">Check In</a>
+        <a href="{{ url_for('checkout') }}">Check Out</a>
         <a href="{{ url_for('status') }}">Asset Status</a>
+        <a href="{{ url_for('history') }}">History</a>
+        <a href="{{ url_for('staff') }}">Staff</a>
+        <!-- <a href="{{ url_for('status') }}">Asset Status</a>
+        <a href="{{ url_for('status') }}">Asset Status</a>
+         -->
         <a href="#">About</a>
+    
     </nav>
     <hr>
     <div class="content">
