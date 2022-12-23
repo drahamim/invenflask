@@ -26,6 +26,19 @@ def get_asset(asset_id, action):
             return False
     return asset
 
+def get_staff(staff_id):
+    conn = get_db_connection()
+    staff = conn.execute('SELECT * FROM staffs WHERE id = ?',
+                         (staff_id,)).fetchone()
+    conn.close()
+    return staff
+
+def get_checkout(asset_id):
+    conn = get_db_connection()
+    asset = conn.execute('SELECT * FROM checkouts WHERE assetid = >',
+                         (asset_id)).fetchone()
+    return asset
+
 
 @app.route('/')
 def index():
@@ -112,4 +125,46 @@ def staff():
 
 
 
+@app.route('/checkout', methods=('GET', 'POST'))
+def checkout():
+    if request.method == 'POST':
+        asset_id = request.form['id']
+        accessory_id = request.form['accessoryid']
+        staff_id = request.form['staffid']
 
+        if not asset_id:
+            flash('Asset ID is required')
+        elif not staff_id:
+            flash('Staff ID required')
+        elif get_staff(staff_id) is None:
+            flash('Staff does not exist')
+            return redirect(url_for('checkout'))  
+        elif get_asset(asset_id,'edit') is False:
+            flash("Asset does not exist. Please make it below")
+            return redirect(url_for('create_asset'))
+        elif get_asset(asset_id,'edit')[2] == 'Damaged':
+            flash("Asset should not be checked ou. Please choose another one")
+            return redirect(url_for('checkout'))
+        else:
+            staff_dept = get_staff(staff_id)['Department']
+            try:
+                conn = get_db_connection()
+                conn.execute('INSERT INTO checkouts (assetid, staffid, department) VALUES (?, ?, ?)',
+                            (asset_id, staff_id, staff_dept))
+                conn.execute('UPDATE assets SET asset_status = "checkedout" WHERE id = ?',
+                             (asset_id,))
+                conn.execute('INSERT INTO history')
+                if accessory_id:
+                    conn.execute('INSERT INTO checkouts (assetid, staffid, department) VALUES (?, ?, ?)',
+                            (accessory_id, staff_id, staff_dept))
+                    conn.execute('UPDATE assets SET asset_status = "checkedout" WHERE id = ?',
+                             (accessory_id,))
+                
+                conn.commit()
+                conn.close()
+                flash('Asset Checkout Completed')
+                return redirect(url_for('checkout'))
+            except sqlite3.IntegrityError:
+                flash("Asset already checked out! Please check-in before checking out")
+                return redirect(url_for('checkout'))
+    return render_template('checkout.html')

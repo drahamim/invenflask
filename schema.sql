@@ -14,9 +14,9 @@ CREATE UNIQUE INDEX asset_id on assets (id);
 
 
 CREATE TABLE staffs(
-    FirstName text NOT NULL,
-    LastName text NOT NULL,
     id text NOT NULL,
+	FirstName text NOT NULL,
+    LastName text NOT NULL,
     Division text NOT NULL,
     Department text NOT NULL,
     Title text NOT NULL
@@ -27,18 +27,16 @@ CREATE TABLE staffs(
 
 CREATE TABLE checkouts(
 	assetid text NOT NULL,
-	accessoryid text NOT NULL,
 	staffid text NOT NULL,
 	department text NOT NULL,
 	timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
-
+CREATE UNIQUE INDEX check_a_id on checkouts (assetid);
 
 
 CREATE TABLE history(
 	assetid text NOT NULL,
 	staffid text NOT NULL,
-	headsetid text NOT NULL,
 	department text NOT NULL,
 	division text NOT NULL,
     checkouttime timestamp NOT NULL,
