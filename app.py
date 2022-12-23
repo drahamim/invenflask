@@ -1,6 +1,7 @@
 import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect, abort
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkey'
 
@@ -35,8 +36,9 @@ def get_staff(staff_id):
 
 def get_checkout(asset_id):
     conn = get_db_connection()
-    asset = conn.execute('SELECT * FROM checkouts WHERE assetid = >',
-                         (asset_id)).fetchone()
+    asset = conn.execute('SELECT * FROM checkouts WHERE assetid = ?',
+                         (asset_id,)).fetchone()
+    conn.close()
     return asset
 
 
@@ -153,7 +155,6 @@ def checkout():
                             (asset_id, staff_id, staff_dept))
                 conn.execute('UPDATE assets SET asset_status = "checkedout" WHERE id = ?',
                              (asset_id,))
-                conn.execute('INSERT INTO history')
                 if accessory_id:
                     conn.execute('INSERT INTO checkouts (assetid, staffid, department) VALUES (?, ?, ?)',
                             (accessory_id, staff_id, staff_dept))
@@ -168,3 +169,39 @@ def checkout():
                 flash("Asset already checked out! Please check-in before checking out")
                 return redirect(url_for('checkout'))
     return render_template('checkout.html')
+
+
+@app.route('/checkin', methods=('GET', 'POST'))
+def checkin():
+    if request.method == 'POST':
+        asset_id = request.form['id']
+        if not asset_id:
+            flash('Asset ID is required')
+        elif get_asset(asset_id,"edit") is False:
+            flash("Asset does not exist. Please make it below")
+            return redirect(url_for('create_asset'))
+        else:
+            asset_checkout = get_checkout(asset_id)
+            staff_div = get_staff(asset_checkout['staffid'])
+            print(staff_div)
+            try:
+                conn = get_db_connection()
+                conn.execute('INSERT INTO history (assetid, staffid, department, division, checkouttime) VALUES (?,?,?,?,?)',
+                             (asset_id, asset_checkout['staffid'], asset_checkout['department'],staff_div, asset_checkout['timestamp']))
+                conn.execute('DELETE from checkouts WHERE assetid = ?'(asset_id))
+                conn.commit()
+                conn.close()
+                flash('Asset checkin Completed')
+                return redirect(url_for('checkout'))
+            except sqlite3.IntegrityError:
+                flash("Asset already checked out! Please check-in before checking out")
+                return redirect(url_for('checkied in'))
+    return render_template('checkin.html')
+
+
+@app.route('/history')
+def history():
+    conn = get_db_connection()
+    assets = conn.execute('SELECT * FROM history').fetchall()
+    conn.close()
+    return render_template('history.html', assets=assets)
