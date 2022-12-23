@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{% block title %} Checkout Asset {% endblock %}</h1>
+    <h1>{% block title %} Checkin Asset {% endblock %}</h1>
     <form method="POST">
         <label for="title">ID</label>
         <br>
@@ -9,7 +9,7 @@
                placeholder="Asset ID"
                value="{{ request.form['id'] }}"></input>
         <br>
-        <button type="submit">Checkout</button>
+        <button type="submit">Checkin</button>
     </form>
 {% endblock %}
 
