@@ -29,6 +29,7 @@ jobs:
       - name: Echo Tag
         run: echo ${{ steps.semver.outputs.next }}
       - name: Create Release
+        if: ${{ steps.semver.outputs.next }}
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
