@@ -39,5 +39,5 @@ jobs:
   
   trigger_build:
     needs: Release
-    if: ${{ jobs.Release.steps.create_release.conclusion != "skipped" }}
+    if: ${{ Release.steps.create_release.conclusion != "skipped" }}
     uses: ./.github/workflows/build_packages.yml
