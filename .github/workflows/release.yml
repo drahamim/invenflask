@@ -39,5 +39,5 @@ jobs:
   
   trigger_build:
     needs: Release
-    if: github.event.release.published
+    if: github.event.release.created
     uses: ./.github/workflows/build_packages.yml
