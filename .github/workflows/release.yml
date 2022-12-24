@@ -36,9 +36,6 @@ jobs:
           tag_name: ${{ steps.semver.outputs.next }}
           body: |
             ${{ steps.Changelog.outputs.changelog }}
-  
-  trigger_build:
-    needs: Release
-    with:
-      new_ver: ${{ steps.semver.outputs.next }}
-    uses: ./.github/workflows/build_packages.yml
+      - name: Trigger build
+        if: ${{ steps.semver.outputs.next }}
+        uses: ./.github/workflows/build_packages.yml
