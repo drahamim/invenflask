@@ -39,4 +39,6 @@ jobs:
   
   trigger_build:
     needs: Release
+    with:
+      new_ver: ${{ steps.semver.outputs.next }}
     uses: ./.github/workflows/build_packages.yml

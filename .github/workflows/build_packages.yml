@@ -5,9 +5,10 @@ on:
     types:
       - created
   workflow_call:
-
+    inputs: new_ver
 jobs:
   build_linux:
+    if: ${{ new_ver }}
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v3
