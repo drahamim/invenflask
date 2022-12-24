@@ -38,4 +38,4 @@ jobs:
             ${{ steps.Changelog.outputs.changelog }}
       - name: Trigger build
         if: ${{ steps.semver.outputs.next }}
-        uses: ./.github/workflows/build_packages.yml
+        uses: .github/workflows/build_packages.yml
