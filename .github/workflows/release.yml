@@ -25,6 +25,7 @@ jobs:
         with:
           token: ${{ github.token }}
           branch: main
+          noVersionBumpBehavior: silent
       - name: Echo Tag
         run: echo ${{ steps.semver.outputs.next }}
       - name: Create Release
