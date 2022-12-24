@@ -1,0 +1,45 @@
+name: lint
+
+on:
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        # Run in all these versions of Python
+        python-version: [3.9, '3.10']
+
+    steps:
+        # Checkout the latest code from the repo
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        # Setup which version of Python to use
+      - name: Set Up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+        # Display the Python version being used
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+        # Install the package using the setup.py
+      - name: Lint Check
+        uses: ricardochaves/python-lint@v1.4.0
+        with:
+          python-root-list: ""
+          use-pylint: false
+          use-pycodestyle: false
+          use-flake8: true
+          use-black: false
+          use-mypy: false
+          use-isort: false
+          extra-pylint-options: ""
+          extra-pycodestyle-options: ""
+          extra-flake8-options: ""
+          extra-black-options: ""
+          extra-mypy-options: ""
+          extra-isort-options: ""
