@@ -1,4 +1,5 @@
 # Invenflask
+[![Release](https://github.com/drahamim/invenflask/actions/workflows/release.yml/badge.svg)](https://github.com/drahamim/invenflask/actions/workflows/release.yml)
 
 Dependancies:
 sqlite3 3.32.3
