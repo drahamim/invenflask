@@ -9,6 +9,8 @@ jobs:
   Release:
     name: Create Release
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.semver.outputs.next }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,6 +30,7 @@ jobs:
           noVersionBumpBehavior: silent
       - name: Echo Tag
         run: echo ${{ steps.semver.outputs.next }}
+        run: echo 
       - name: Create Release
         if: ${{ steps.semver.outputs.next }}
         id: create_release
@@ -39,5 +42,5 @@ jobs:
   
   trigger_build:
     needs: Release
-    if: ${{ Release.steps.create_release.conclusion != "skipped" }}
+    if: ${{ needs.Release.outputs.output1 != 0 }}
     uses: ./.github/workflows/build_packages.yml
