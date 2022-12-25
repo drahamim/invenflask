@@ -30,7 +30,6 @@ jobs:
           noVersionBumpBehavior: silent
       - name: Echo Tag
         run: echo ${{ steps.semver.outputs.next }}
-        run: echo 
       - name: Create Release
         if: ${{ steps.semver.outputs.next }}
         id: create_release
