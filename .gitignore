@@ -105,6 +105,7 @@ venv.bak/
 
 # code editor stuff
 .vscode
+.idea/
 
 database.db
 
