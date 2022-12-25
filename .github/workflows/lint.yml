@@ -6,14 +6,12 @@ on:
       - "main"
 
 jobs:
-  test:
+  code_lint:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         # Run in all these versions of Python
         python-version: [3.9, '3.10']
-
     steps:
         # Checkout the latest code from the repo
       - name: Checkout repo
@@ -43,3 +41,12 @@ jobs:
           extra-black-options: ""
           extra-mypy-options: ""
           extra-isort-options: ""
+  
+  commit_lint:
+    name: Conventional Commit Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Commit Lint
+        uses: webiny/action-conventional-commits@v1.1.0
