@@ -1,10 +1,10 @@
 import sqlite3
 from flask import Flask
 from flask import render_template, request, url_for, flash, redirect, abort
-
+import toml
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secretkey'
+app.config.from_file("config.toml", load=toml.load)
 
 
 def get_db_connection():
