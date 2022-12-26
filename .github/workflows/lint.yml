@@ -8,19 +8,16 @@ on:
 jobs:
   code_lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # Run in all these versions of Python
-        python-version: [3.9, '3.10']
+
     steps:
         # Checkout the latest code from the repo
       - name: Checkout repo
         uses: actions/checkout@v3
         # Setup which version of Python to use
-      - name: Set Up Python ${{ matrix.python-version }}
+      - name: Set Up Python 3.10
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.10'
         # Display the Python version being used
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
@@ -37,7 +34,7 @@ jobs:
           use-isort: false
           extra-pylint-options: ""
           extra-pycodestyle-options: ""
-          extra-flake8-options: ""
+          extra-flake8-options: "--ignore=E501"
           extra-black-options: ""
           extra-mypy-options: ""
           extra-isort-options: ""

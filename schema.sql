@@ -40,7 +40,7 @@ CREATE TABLE history(
 	department text NOT NULL,
 	division text NOT NULL,
     checkouttime timestamp NOT NULL,
-	returntime timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL 
+	returntime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
 
