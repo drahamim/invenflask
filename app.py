@@ -149,7 +149,7 @@ def checkout():
             flash("Asset does not exist. Please make it below")
             return redirect(url_for('create_asset'))
         elif get_asset(asset_id, 'edit')['asset_status'] == 'damaged':
-            flash("Asset should not be checked ou. Please choose another one")
+            flash("Asset should not be checked out. Please choose another one")
             return redirect(url_for('checkout'))
         else:
             staff_dept = get_staff(staff_id)['Department']
