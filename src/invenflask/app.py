@@ -17,6 +17,14 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+def needs_db_conn(db_call):
+    conn = get_db_connection()
+    try:
+        conn.execute(db_call)
+        
+    finally:
+        conn.close()
+
 
 def get_asset(asset_id, action):
     conn = get_db_connection()
