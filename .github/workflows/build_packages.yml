@@ -36,8 +36,8 @@ jobs:
         with:
           tag_name: ${{ steps.get-latest-tag.outputs.tag }}
           files: |
-            dist/*-*-*.whl
-            dist/*.*.tar.gz
+            dist/*.whl
+            dist/*.tar.gz
  
   # build_windows:
   #   runs-on: windows-latest
