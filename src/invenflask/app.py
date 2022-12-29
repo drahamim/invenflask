@@ -1,10 +1,15 @@
-import sqlite3
 from flask import Flask
 from flask import render_template, request, url_for, flash, redirect, abort
+from pathlib import Path
+import sqlite3
 import toml
 
+
+config_path = Path.cwd().joinpath('config.toml')
+
+
 app = Flask(__name__)
-app.config.from_file("config.toml", load=toml.load)
+app.config.from_file(str(config_path), load=toml.load)
 
 
 def get_db_connection():
