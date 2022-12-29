@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, request, url_for, flash, redirect, abort
+from flask import render_template, request, url_for, flash, redirect, abort, g
 from pathlib import Path
 import sqlite3
 import toml
@@ -17,20 +17,28 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-def needs_db_conn(db_call):
-    conn = get_db_connection()
-    try:
-        conn.execute(db_call)
-        
-    finally:
-        conn.close()
+
+def get_db():
+    """Opens a new database connection if there is none yet for the
+    current application context.
+    """
+    if not hasattr(g, 'sqlite_db'):
+        g.sqlite_db = get_db_connection()
+    return g.sqlite_db
+
+
+@app.teardown_appcontext
+def close_db(error):
+    """Closes the database again at the end of the request."""
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
 
 
 def get_asset(asset_id, action):
     conn = get_db_connection()
     asset = conn.execute('SELECT * FROM assets WHERE id = ?',
-                         (asset_id,)).fetchone()
-    conn.close()
+                         (asset_id,)).fetchone
+    conn.commit()
     if action == "edit":
         if asset is None:
             abort(404)
@@ -46,7 +54,7 @@ def get_staff(staff_id):
     conn = get_db_connection()
     staff = conn.execute('SELECT * FROM staffs WHERE id = ?',
                          (staff_id,)).fetchone()
-    conn.close()
+    conn.commit()
     return staff
 
 
@@ -54,7 +62,7 @@ def get_checkout(asset_id):
     conn = get_db_connection()
     asset = conn.execute('SELECT * FROM checkouts WHERE assetid = ?',
                          (asset_id,)).fetchone()
-    conn.close()
+    conn.commit()
     return asset
 
 
@@ -69,7 +77,7 @@ def index():
     asset_status = conn.execute(
         'SELECT asset_status, COUNT(*) FROM assets GROUP BY asset_status'
     ).fetchall()
-    conn.close()
+    conn.commit()
     return render_template(
         'index.html', assets=assets, asset_total=asset_total,
         asset_type=asset_types, asset_status=asset_status)
@@ -94,7 +102,6 @@ def create_asset():
                     'VALUES (?, ?, ?)',
                     (id, asset_type, asset_status))
                 conn.commit()
-                conn.close()
                 return redirect(url_for('status'))
             except sqlite3.IntegrityError:
                 flash("Asset already exists")
@@ -107,7 +114,7 @@ def create_asset():
 def status():
     conn = get_db_connection()
     assets = conn.execute('SELECT * FROM assets').fetchall()
-    conn.close()
+    conn.commit()
     return render_template('status.html', assets=assets)
 
 
@@ -122,7 +129,6 @@ def edit_asset(id):
         conn.execute('UPDATE assets SET asset_type = ?, asset_status = ?'
                      ' WHERE id = ?', (asset_type, asset_status, id))
         conn.commit()
-        conn.close()
         return redirect(url_for('status'))
 
     return render_template('edit_asset.html', asset=asset)
@@ -134,7 +140,6 @@ def delete(id):
     conn = get_db_connection()
     conn.execute('DELETE FROM assets WHERE id = ?', (asset,))
     conn.commit()
-    conn.close()
     flash('Asset "{}" was successfully deleted!'.format(id))
     return redirect(url_for('index'))
 
@@ -145,7 +150,7 @@ def staff():
     if request.method == 'POST':
         pass
     staff = conn.execute('SELECT * FROM staffs').fetchall()
-    conn.close()
+    conn.commit()
     return render_template('staff.html', staffs=staff)
 
 
@@ -190,7 +195,6 @@ def checkout():
                         (accessory_id,))
 
                 conn.commit()
-                conn.close()
                 flash('Asset Checkout Completed')
                 return redirect(url_for('checkout'))
             except sqlite3.IntegrityError:
@@ -231,7 +235,6 @@ def checkin():
                         'UPDATE assets SET asset_status = ? WHERE id = ?',
                         ('Available', asset_id))
                 conn.commit()
-                conn.close()
                 flash('Asset checkin Completed')
                 return redirect(url_for('checkout'))
             except sqlite3.IntegrityError as e:
@@ -244,5 +247,5 @@ def checkin():
 def history():
     conn = get_db_connection()
     assets = conn.execute('SELECT * FROM history').fetchall()
-    conn.close()
+    conn.commit()
     return render_template('history.html', assets=assets)
