@@ -2,14 +2,15 @@ from flask import Flask
 from flask import render_template, request, url_for, flash, redirect, abort, g
 from pathlib import Path
 import sqlite3
-import toml
 
 
-config_path = Path.cwd().joinpath('config.toml')
-
+config_path = Path.cwd().joinpath('config.py')
 
 app = Flask(__name__)
-app.config.from_file(str(config_path), load=toml.load)
+app.config.from_pyfile(config_path)
+print(config_path)
+
+print(app.config)
 
 
 def get_db_connection():
@@ -35,7 +36,7 @@ def close_db(error):
 
 
 def get_asset(asset_id, action):
-    conn = get_db_connection()
+    conn = get_db()
     asset = conn.execute('SELECT * FROM assets WHERE id = ?',
                          (asset_id,)).fetchone
     conn.commit()
@@ -43,6 +44,7 @@ def get_asset(asset_id, action):
         if asset is None:
             abort(404)
         else:
+            print(asset)
             return asset
     if action == "create":
         if asset:
@@ -51,7 +53,7 @@ def get_asset(asset_id, action):
 
 
 def get_staff(staff_id):
-    conn = get_db_connection()
+    conn = get_db()
     staff = conn.execute('SELECT * FROM staffs WHERE id = ?',
                          (staff_id,)).fetchone()
     conn.commit()
@@ -59,7 +61,7 @@ def get_staff(staff_id):
 
 
 def get_checkout(asset_id):
-    conn = get_db_connection()
+    conn = get_db()
     asset = conn.execute('SELECT * FROM checkouts WHERE assetid = ?',
                          (asset_id,)).fetchone()
     conn.commit()
@@ -68,7 +70,8 @@ def get_checkout(asset_id):
 
 @app.route('/')
 def index():
-    conn = get_db_connection()
+
+    conn = get_db()
     assets = conn.execute('SELECT * FROM assets').fetchall()
     asset_total = conn.execute('SELECT COUNT(*) FROM assets').fetchone()[0]
     asset_types = conn.execute(
@@ -96,7 +99,7 @@ def create_asset():
             flash('Asset Type required')
         else:
             try:
-                conn = get_db_connection()
+                conn = get_db()
                 conn.execute(
                     'INSERT INTO assets (id, asset_type, asset_status)'
                     'VALUES (?, ?, ?)',
@@ -112,7 +115,7 @@ def create_asset():
 
 @app.route('/status')
 def status():
-    conn = get_db_connection()
+    conn = get_db()
     assets = conn.execute('SELECT * FROM assets').fetchall()
     conn.commit()
     return render_template('status.html', assets=assets)
@@ -125,7 +128,7 @@ def edit_asset(id):
     if request.method == 'POST':
         asset_type = request.form['asset_type']
         asset_status = request.form['asset_status']
-        conn = get_db_connection()
+        conn = get_db()
         conn.execute('UPDATE assets SET asset_type = ?, asset_status = ?'
                      ' WHERE id = ?', (asset_type, asset_status, id))
         conn.commit()
@@ -137,7 +140,7 @@ def edit_asset(id):
 @app.route('/delete/<id>/', methods=('POST',))
 def delete(id):
     asset = get_asset(id, "edit")
-    conn = get_db_connection()
+    conn = get_db()
     conn.execute('DELETE FROM assets WHERE id = ?', (asset,))
     conn.commit()
     flash('Asset "{}" was successfully deleted!'.format(id))
@@ -146,7 +149,7 @@ def delete(id):
 
 @app.route('/staff/', methods=('GET', 'POST'))
 def staff():
-    conn = get_db_connection()
+    conn = get_db()
     if request.method == 'POST':
         pass
     staff = conn.execute('SELECT * FROM staffs').fetchall()
@@ -160,7 +163,7 @@ def checkout():
         asset_id = request.form['id']
         accessory_id = request.form['accessoryid']
         staff_id = request.form['staffid']
-
+        
         if not asset_id:
             flash('Asset ID is required')
         elif not staff_id:
@@ -171,14 +174,17 @@ def checkout():
         elif get_asset(asset_id, 'edit') is False:
             flash("Asset does not exist. Please make it below")
             return redirect(url_for('create_asset'))
-        elif get_asset(asset_id, 'edit')['asset_status'] == 'damaged':
-            flash("Asset should not be checked out. Please choose another one")
-            return redirect(url_for('checkout'))
+        elif get_asset(asset_id, 'edit') is dict:
+            if get_asset(asset_id, 'edit')['asset_status'] == 'damaged':
+                flash("Asset should not be checked out. Please choose another one")
+                return redirect(url_for('checkout'))
+            else:
+                flash(f"Something went wrong with {get_asset(asset_id, 'edit')}")
         else:
             staff_dept = get_staff(staff_id)['Department']
-            flash(get_asset(asset_id, 'edit')['asset_status'])
+            # flash(get_asset(asset_id, 'edit'))
             try:
-                conn = get_db_connection()
+                conn = get_db()
                 conn.execute(
                     'INSERT INTO checkouts (assetid, staffid, department) '
                     'VALUES (?, ?, ?)', (asset_id, staff_id, staff_dept))
@@ -214,11 +220,15 @@ def checkin():
         elif get_asset(asset_id, "edit") is False:
             flash("Asset does not exist. Please make it below")
             return redirect(url_for('create_asset'))
+        elif get_checkout(asset_id) == None:
+            flash("Asset Not checked out")
+            return redirect(url_for('checkin'))
         else:
             asset_checkout = get_checkout(asset_id)
+            print(asset_checkout)
             staff_div = get_staff(asset_checkout['staffid'])['Division']
             try:
-                conn = get_db_connection()
+                conn = get_db()
                 conn.execute(
                     'INSERT INTO history (assetid, staffid, department, division, checkouttime) VALUES (?,?,?,?,?)',
                     (asset_id, asset_checkout['staffid'],
@@ -226,14 +236,15 @@ def checkin():
                      asset_checkout['timestamp']))
                 conn.execute(
                     'DELETE from checkouts WHERE assetid = ?', (asset_id,))
-                if get_asset(asset_id, "edit")['asset_status'] == "damaged":
-                    conn.execute(
-                        'UPDATE assets SET asset_status = ? WHERE id = ?',
-                        ('damaged', asset_id))
-                else:
-                    conn.execute(
-                        'UPDATE assets SET asset_status = ? WHERE id = ?',
-                        ('Available', asset_id))
+                if get_asset(asset_id, 'edit') is dict:
+                    if get_asset(asset_id, "edit")['asset_status'] == "damaged":
+                        conn.execute(
+                            'UPDATE assets SET asset_status = ? WHERE id = ?',
+                            ('damaged', asset_id))
+                    else:
+                        conn.execute(
+                            'UPDATE assets SET asset_status = ? WHERE id = ?',
+                            ('Available', asset_id))
                 conn.commit()
                 flash('Asset checkin Completed')
                 return redirect(url_for('checkout'))
@@ -245,7 +256,7 @@ def checkin():
 
 @app.route('/history')
 def history():
-    conn = get_db_connection()
+    conn = get_db()
     assets = conn.execute('SELECT * FROM history').fetchall()
     conn.commit()
     return render_template('history.html', assets=assets)
