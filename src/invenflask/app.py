@@ -163,7 +163,6 @@ def checkout():
         asset_id = request.form['id']
         accessory_id = request.form['accessoryid']
         staff_id = request.form['staffid']
-        
         if not asset_id:
             flash('Asset ID is required')
         elif not staff_id:
@@ -179,7 +178,8 @@ def checkout():
                 flash("Asset should not be checked out. Please choose another one")
                 return redirect(url_for('checkout'))
             else:
-                flash(f"Something went wrong with {get_asset(asset_id, 'edit')}")
+                flash(
+                    f"Something went wrong with {get_asset(asset_id, 'edit')}")
         else:
             staff_dept = get_staff(staff_id)['Department']
             # flash(get_asset(asset_id, 'edit'))
@@ -220,7 +220,7 @@ def checkin():
         elif get_asset(asset_id, "edit") is False:
             flash("Asset does not exist. Please make it below")
             return redirect(url_for('create_asset'))
-        elif get_checkout(asset_id) == None:
+        elif get_checkout(asset_id) is None:
             flash("Asset Not checked out")
             return redirect(url_for('checkin'))
         else:
