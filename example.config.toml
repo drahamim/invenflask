@@ -1,9 +1,0 @@
-[default]
-SECRET_KEY = "SomethingNEAT"
-
-
-
-
-
-[development]
-SECRET_KEY = "Pl3453Ch4ng3"

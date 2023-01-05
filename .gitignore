@@ -111,4 +111,4 @@ database.db
 
 .DS_Store
 
-config.toml
+config.py
