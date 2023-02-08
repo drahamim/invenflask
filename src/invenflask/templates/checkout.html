@@ -1,27 +1,43 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
     <h1>{% block title %} Checkout Asset {% endblock %}</h1>
-    <form method="POST">
+    <script>
+    $('inputform').on('keydown', 'input', function (event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            var $this = $(event.target);
+            var index = parseFloat($this.attr('data-index'));
+            $('[data-index="' + (index + 1).toString() + '"]').focus();
+        }
+    });
+    </script>
+    <form method="POST" id='inputform'>
         <label for="title">ID</label>
         <br>
         <input type="text" name="id"
                placeholder="Asset ID"
-               value="{{ request.form['id'] }}"></input>
+               value="{{ request.form['id'] }}"
+               data-index="1"></input>
         <br>
         <label for="title">Accessory</label>
         <br>
         <input type="text" name="accessoryid"
                 placeholder="Accessory ID"
-                value="{{ request.form['accessoryid'] }}"></input>
+                value="{{ request.form['accessoryid'] }}"
+                data-index="2"></input>
         <br>
         <label for="type">Staff ID</label>
         <br>
         <input type="text" name="staffid"
                 placeholder="Staff ID"
-                value=""{{ request.form[staffid]}}></input>
+                value=""{{ request.form[staffid]}}
+                data-index="3"></input>
         <br>
-        <button type="submit">Checkout</button>
+        <button type="submit" data-index="4">Checkout</button>
     </form>
 {% endblock %}
+
+
 
