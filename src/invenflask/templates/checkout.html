@@ -3,16 +3,6 @@
 {% block content %}
 
     <h1>{% block title %} Checkout Asset {% endblock %}</h1>
-    <script>
-    $('inputform').on('keydown', 'input', function (event) {
-        if (event.which == 13) {
-            event.preventDefault();
-            var $this = $(event.target);
-            var index = parseFloat($this.attr('data-index'));
-            $('[data-index="' + (index + 1).toString() + '"]').focus();
-        }
-    });
-    </script>
     <form method="POST" id='inputform'>
         <label for="title">ID</label>
         <br>
@@ -38,16 +28,15 @@
         <button type="submit" data-index="4">Checkout</button>
     </form>
     <script>
-        $(document).ready(function() { 
-            $('inputform').on('keydown', 'input', function (event) {
-                if (event.which == 13) {
+        $(document).ready({
+            document.querySelector('#inputform input').addEventListener('KeyDown', function (event) {
+                if (event.key === 'Enter') {
                     event.preventDefault();
-                    var $this = $(event.target);
-                    var index = parseFloat($this.attr('data-index'));
-                    $('[data-index="' + (index + 1).toString() + '"]').focus();
+                    var index = event.target.dataset.index;
+                    document.querySelector('[data-index="' + (index + 1).toString() + '"]').focus();
                 }
-            });
-        });        
+            })
+        })
     </script>
 {% endblock %}
 
