@@ -1,13 +1,21 @@
 from flask import Flask
-from flask import render_template, request, url_for, flash, redirect, abort, g
+from flask import render_template, request, url_for, flash, redirect, abort, g, session
 from pathlib import Path
 import sqlite3
+import os
+import pandas as pd 
+from werkzeug.utils import secure_filename
 
 
 config_path = Path.cwd().joinpath('config.py')
 
+upload_folder = os.path.join('static', 'uploads')
+allowed_ext = {'csv'}
+
 app = Flask(__name__)
 app.config.from_pyfile(config_path)
+app.config['upload_folder'] = upload_folder
+os.makedirs(app.config['upload_folder'], exist_ok=True)
 print(config_path)
 
 print(app.config)
@@ -260,3 +268,37 @@ def history():
     assets = conn.execute('SELECT * FROM history').fetchall()
     conn.commit()
     return render_template('history.html', assets=assets)
+
+
+@app.route('/bulk_asset', methods=('GET', 'POST'))
+def bulk_asset():
+    if request.method == 'POST':
+        uploaded_file = request.files.get('file')
+        print(uploaded_file)
+        data_filename = secure_filename(uploaded_file.filename)
+        file_path = os.path.join(app.config['upload_folder'], data_filename)
+        uploaded_file.save(os.path.join(app.config['upload_folder'], data_filename))
+        parseCSV(file_path)
+        return redirect(url_for('status'))
+    if request.method =="GET":
+        return render_template('bulk_assets.html')
+
+def parseCSV(filePath):
+    # CVS Column Names
+    col_names = ['Model', 'FA_Number']
+    # Use Pandas to parse the CSV file
+    csvData = pd.read_csv(filePath, names=col_names, header=1)
+    # Loop through the Rows
+    print("PARSING DATA")
+    for i,row in csvData.iterrows():
+        try:
+            conn = get_db()
+            conn.execute(
+                'INSERT INTO assets (id, asset_type, asset_status)'
+                'VALUES(?,?,?)',
+                (row['FA_Number'], row['Model'], 'Available')            
+            )
+            conn.commit()
+        except sqlite3.IntegrityError:
+            flash("Asset upload failed import")
+            return redirect(url_for('create_asset'))
