@@ -3,41 +3,31 @@
 {% block content %}
 
     <h1>{% block title %} Checkout Asset {% endblock %}</h1>
-    <form method="POST" id='inputform'>
+    <script type="module"
+    src="{{ url_for('static', filename='next_field.js') }}"></script>
+       
+    </script>
+    <form method="POST" id='inputform', class="a-form">
         <label for="title">ID</label>
         <br>
         <input type="text" name="id"
                placeholder="Asset ID"
-               value="{{ request.form['id'] }}"
-               data-index="1"></input>
+               value="{{ request.form['id'] }}"></input>
         <br>
         <label for="title">Accessory</label>
         <br>
         <input type="text" name="accessoryid"
                 placeholder="Accessory ID"
-                value="{{ request.form['accessoryid'] }}"
-                data-index="2"></input>
+                value="{{ request.form['accessoryid'] }}"></input>
         <br>
         <label for="type">Staff ID</label>
         <br>
         <input type="text" name="staffid"
                 placeholder="Staff ID"
-                value=""{{ request.form[staffid]}}
-                data-index="3"></input>
+                value=""{{ request.form[staffid]}}></input>
         <br>
-        <button type="submit" data-index="4">Checkout</button>
+        <button type="submit">Checkout</button>
     </form>
-    <script>
-        $(document).ready({
-            document.querySelector('#inputform input').addEventListener('KeyDown', function (event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    var index = event.target.dataset.index;
-                    document.querySelector('[data-index="' + (index + 1).toString() + '"]').focus();
-                }
-            })
-        })
-    </script>
 {% endblock %}
 
 
