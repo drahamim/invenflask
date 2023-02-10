@@ -278,17 +278,45 @@ def bulk_asset():
         data_filename = secure_filename(uploaded_file.filename)
         file_path = os.path.join(app.config['upload_folder'], data_filename)
         uploaded_file.save(os.path.join(app.config['upload_folder'], data_filename))
-        parseCSV(file_path)
-        return redirect(url_for('status'))
+        session['uploaded_data_file_path'] = file_path
+        return redirect(url_for('showData'))
     if request.method =="GET":
         return render_template('bulk_assets.html')
 
-def parseCSV(filePath):
+
+@app.route('/show_data', methods=["GET", "POST"])
+def showData():
+    # Retrieving uploaded file path from session
+    data_file_path = session.get('uploaded_data_file_path', None)
+ 
+    # read csv file in python flask (reading uploaded csv file from uploaded server location)
+    uploaded_df = pd.read_csv(data_file_path)
+ 
+    # pandas dataframe to html table flask
+    uploaded_df_html = uploaded_df.to_html()
+    if request.method == "GET":
+        headers = pd.read_csv(data_file_path, nrows=1).columns.tolist()
+        
+        return render_template(
+            'bulk_create_verify.html', data_var=uploaded_df_html,
+            headers_list=headers)
+    if request.method == "POST":
+        asset_id_field = request.form['asset_id']
+        asset_type_field = request.form['asset_type']
+        asset_status_field = request.form['asset_status']
+
+        parseCSV(
+            data_file_path, asset_id_field, 
+            asset_type_field, asset_status_field)
+    return redirect(url_for('status'))    
+
+def parseCSV(filePath, asset_id, asset_type, asset_status):
     # CVS Column Names
     col_names = ['Model', 'FA_Number']
     # Use Pandas to parse the CSV file
     csvData = pd.read_csv(filePath, names=col_names, header=1)
     # Loop through the Rows
+    
     print("PARSING DATA")
     for i,row in csvData.iterrows():
         try:
@@ -296,9 +324,12 @@ def parseCSV(filePath):
             conn.execute(
                 'INSERT INTO assets (id, asset_type, asset_status)'
                 'VALUES(?,?,?)',
-                (row['FA_Number'], row['Model'], 'Available')            
+                (row[asset_id], row[asset_type], asset_status)            
             )
             conn.commit()
         except sqlite3.IntegrityError:
             flash("Asset upload failed import")
             return redirect(url_for('create_asset'))
+    return redirect(url_for('status'))
+
+ 
