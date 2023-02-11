@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Bulk Asset Create {% endblock %}</h1>
+    <form method=post enctype=multipart/form-data>
+        <p><input type=file name=file></p>
+        <p><input type=submit  value=Submit></p>
+    </form>
+{% endblock %}
+

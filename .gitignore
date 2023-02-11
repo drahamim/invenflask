@@ -112,3 +112,5 @@ database.db
 .DS_Store
 
 config.py
+#ignore static folder for uploads
+static/
