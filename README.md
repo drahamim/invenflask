@@ -31,18 +31,23 @@ Within the unpacked directory:
 
 For development, perform an _editable install_ instead at step 2 above, with `pip install -e .`
 
-## import staff
-This will require a CSV formatted file 
-Fields in order 
+## Import Staff
+This can be done on the **Bulk Import** page.
 
-```id, FirstName, LastName, Division, Department, Title```
+Staff information support the following columns of information:
 
-Do not include a header row
+```ID, First Name, Last Name, Division, Department, Title``` 
+*ID must be unique*
 
-```
-sqlite3 database.db
-sqlite> .mode csv
-sqlite> .import ./test_data/<your staff file>.csv staffs
-# verify it worked
-sqlite> SELECT * from staffs;
-```
+Currently we do not support less than 6 columns on the import. 
+If you don't have all the matching just create blank columns with the headers as needed. 
+
+## Import Assets
+This can be done on teh **Bulk Import** page.
+
+Assets currently support the following columns:
+
+```ID, Model, Status```
+*ID must be unique*
+
+Status is special because by default it will import as **Available** unless a column is specified for unique status tracking
