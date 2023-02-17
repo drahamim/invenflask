@@ -10,9 +10,7 @@ requires-python = ">=3.10"
 
 dependencies = [
     "flask >=2.2.2, <3",
-    "toml >=0.10.2, <1",
-    "pandas==1.5.3"
-
+    "toml >=0.10.2, <1"
 ]
 
 [project.scripts]
