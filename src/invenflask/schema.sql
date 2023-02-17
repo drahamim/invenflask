@@ -15,11 +15,11 @@ CREATE UNIQUE INDEX asset_id on assets (id);
 
 CREATE TABLE staffs(
     id text NOT NULL,
-	first_name text NOT NULL,
-    last_name text NOT NULL,
-    division text NOT NULL,
-    department text NOT NULL,
-    title text NOT NULL
+	FirstName text NOT NULL,
+    LastName text NOT NULL,
+    Division text NOT NULL,
+    Department text NOT NULL,
+    Title text NOT NULL
     );
 
 
