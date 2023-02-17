@@ -270,8 +270,8 @@ def history():
     return render_template('history.html', assets=assets)
 
 
-@app.route('/bulk_import', methods=('GET', 'POST'))
-def bulk_import():
+@app.route('/bulk_asset', methods=('GET', 'POST'))
+def bulk_asset():
     if request.method == 'POST':
         uploaded_file = request.files.get('file')
         print(uploaded_file)
@@ -280,11 +280,9 @@ def bulk_import():
         uploaded_file.save(os.path.join(
             app.config['upload_folder'], data_filename))
         session['uploaded_data_file_path'] = file_path
-        form_type = request.form['select_type']
-
-        return redirect(url_for('showData', form_type=form_type))
+        return redirect(url_for('showData'))
     if request.method == "GET":
-        return render_template('bulk_import.html')
+        return render_template('bulk_assets.html')
 
 
 @app.route('/show_data', methods=["GET", "POST"])
@@ -299,47 +297,30 @@ def showData():
     uploaded_df_html = uploaded_df.to_html()
     if request.method == "GET":
         headers = pd.read_csv(data_file_path, nrows=1).columns.tolist()
-        form_type = request.args.get('form_type')
+
         return render_template(
-            'bulk_import_verify.html', data_var=uploaded_df_html,
-            headers_list=headers, form_type=form_type)
+            'bulk_create_verify.html', data_var=uploaded_df_html,
+            headers_list=headers)
     if request.method == "POST":
-        form_type = request.args.get('form_type')
-        if form_type == 'assets':
-            asset_id_field = request.form['asset_id']
-            asset_type_field = request.form['asset_type']
-            asset_status_field = request.form['asset_status']
+        asset_id_field = request.form['asset_id']
+        asset_type_field = request.form['asset_type']
+        asset_status_field = request.form['asset_status']
 
-            parseCSV_assets(
-                data_file_path, asset_id_field,
-                asset_type_field, asset_status_field)
-            return redirect(url_for('status'))
-        elif form_type == 'staff':
-            first_name = request.form['first_name']
-            last_name = request.form['last_name']
-            staff_id = request.form['staff_id']
-            division = request.form['division']
-            department = request.form['department']
-            title = request.form['title']
-            parseCSV_staff(
-                data_file_path, first_name, last_name, staff_id,
-                division, department, title)
-
-            return redirect(url_for('staff'))
-            # First Name	Last Name	Staff ID	Division	Department	Title
+        parseCSV(
+            data_file_path, asset_id_field,
+            asset_type_field, asset_status_field)
+    return redirect(url_for('status'))
 
 
-def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
+def parseCSV(filePath, asset_id, asset_type, asset_status):
+    # CVS Column Names
+    col_names = ['Model', 'FA_Number']
     # Use Pandas to parse the CSV file
-    csvData = pd.read_csv(filePath, header=0)
+    csvData = pd.read_csv(filePath, names=col_names, header=1)
     # Loop through the Rows
 
     print("PARSING DATA")
-    print(asset_status)
     for i, row in csvData.iterrows():
-        if asset_status != 'Available':
-            asset_status == row[asset_status]
-
         try:
             conn = get_db()
             conn.execute(
@@ -347,27 +328,6 @@ def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
                 'VALUES(?,?,?)',
                 (row[asset_id], row[asset_type], asset_status)
             )
-            conn.commit()
-        except sqlite3.IntegrityError:
-            flash("Asset upload failed import")
-            return redirect(url_for('create_asset'))
-    return redirect(url_for('status'))
-
-
-def parseCSV_staff(
-        filePath, first_name, last_name, staff_id, division, department, title):
-    # Use Pandas to parse the CSV file
-    csvData = pd.read_csv(filePath, header=0)
-    # Loop through the Rows
-
-    for i, row in csvData.iterrows():
-        try:
-            conn = get_db()
-            conn.execute(
-                'INSERT INTO staffs (id, first_name, last_name, division, department, title)'
-                'VALUES(?,?,?,?,?,?)',
-                (row[staff_id], row[first_name], row[last_name],
-                 row[division], row[department], row[title]))
             conn.commit()
         except sqlite3.IntegrityError:
             flash("Asset upload failed import")

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Bulk Asset Create {% endblock %}</h1>
+    <p>Please select mapping of columns to asset info</p>
+    <form method="POST">
+        <label>Asset ID:</label>
+        <select class="form-control" name="asset_id" id="asset_id">
+            {% for header in headers_list %}
+                <option value="{{ header }}">{{ header }}</option>
+            {% endfor %}
+        </select>
+        <b>|</b>
+        <label>Asset Type:</label>
+        <select class="form-control" name="asset_type",id="assset_type">
+            {% for header in headers_list %}
+                <option value="{{ header }}">{{ header }}</option>
+            {% endfor %}
+        </select>
+        <b>|</b>
+        <label>Asset Status:</label>
+        <select class="form-control" name="asset_status" id="asset_status">
+            <option value="Available">Available</option>
+            {% for header in headers_list %}
+                <option value="{{ header }}">{{ header }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Import</button>
+    </form>
+    {{ data_var|safe }}
+ 
+{% endblock %}
+
