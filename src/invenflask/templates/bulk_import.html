@@ -3,6 +3,11 @@
 {% block content %}
     <h1>{% block title %} Bulk Asset Create {% endblock %}</h1>
     <form method=post enctype=multipart/form-data>
+        <label>Select CSV data type:</label>
+        <select name="select_type",id="select_type">
+            <option value="assets">Assets</option>
+            <option value="staff">Staff</option>
+        </select>
         <p><input type=file name=file></p>
         <p><input type=submit  value=Submit></p>
     </form>

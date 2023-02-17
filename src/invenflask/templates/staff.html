@@ -4,23 +4,23 @@
 <table id="Staff" class="table table-striped">
     <thead>
       <tr>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Staff ID</th>
-        <th>Division</th>
-        <th>Department</th>
-        <th>Title</th>
+        <th style="text-align:left">First Name</th>
+        <th style="text-align:left">Last Name</th>
+        <th style="text-align:left">Staff ID</th>
+        <th style="text-align:left">Division</th>
+        <th style="text-align:left">Department</th>
+        <th style="text-align:left">Title</th>
       </tr>
     </thead>
     <tbody>
       {% for staff in staffs %}
         <tr>
-          <td>{{ staff.FirstName }}</td>
-          <td>{{ staff.LastName }}</td>
+          <td>{{ staff.first_name }}</td>
+          <td>{{ staff.last_name }}</td>
           <td>{{ staff.id }}</td>
-          <td>{{ staff.Division }}</td>
-          <td>{{ staff.Department }}</td>
-          <td>{{ staff.Title }}</td>
+          <td>{{ staff.division }}</td>
+          <td>{{ staff.department }}</td>
+          <td>{{ staff.title }}</td>
           </td>
         </tr>
       {% endfor %}
