@@ -46,7 +46,7 @@ def close_db(error):
 def get_asset(asset_id, action):
     conn = get_db()
     asset = conn.execute('SELECT * FROM assets WHERE id = ?',
-                         (asset_id,)).fetchone
+                         (asset_id,)).fetchone()
     conn.commit()
     if action == "edit":
         if asset is None:
@@ -132,8 +132,7 @@ def status():
 
 @app.route('/<id>/edit/', methods=('GET', 'POST'))
 def edit_asset(id):
-    asset = get_asset(id, "edit")
-    print(asset)
+
     if request.method == 'POST':
         asset_type = request.form['asset_type']
         asset_status = request.form['asset_status']
@@ -142,8 +141,13 @@ def edit_asset(id):
                      ' WHERE id = ?', (asset_type, asset_status, id))
         conn.commit()
         return redirect(url_for('status'))
-
-    return render_template('edit_asset.html', asset=asset)
+    if request.method == 'GET':
+        conn = get_db()
+        asset = get_asset(id, "edit")
+        asset_types = conn.execute(
+            'Select DISTINCT(asset_type) from assets').fetchall()
+        print(asset_types)
+        return render_template('edit_asset.html', asset=asset, asset_types=asset_types)
 
 
 @app.route('/delete/<id>/', methods=('POST',))
