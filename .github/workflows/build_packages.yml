@@ -5,14 +5,14 @@ on:
     types:
       - created
   workflow_call:
-  
+
 jobs:
   build_linux:
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v3
         with:
-           fetch-depth: 1
+          fetch-depth: 1
       - uses: actions/setup-python@v2
         with:
           python-version: "3.10"
@@ -30,15 +30,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools wheel build
       - name: Build package
-        run: python -m build --wheel -s 
+        run: python -m build --wheel -s
+      - name: Changelog
+        uses: Bullrich/generate-release-changelog@master
+        id: Changelog
+        env:
+          REPO: ${{ github.repository }}
       - name: Push release Assets
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get-latest-tag.outputs.tag }}
+          body: |
+            ${{ steps.Changelog.outputs.changelog }}
           files: |
             dist/*.whl
             dist/*.tar.gz
- 
+
   # build_windows:
   #   runs-on: windows-latest
   #   steps:
