@@ -31,6 +31,9 @@ jobs:
           pip install setuptools wheel build
       - name: Build package
         run: python -m build --wheel -s
+      - name: Get Previous tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1.3.0
       - name: Changelog
         uses: Bullrich/generate-release-changelog@master
         id: Changelog
@@ -42,6 +45,7 @@ jobs:
           tag_name: ${{ steps.get-latest-tag.outputs.tag }}
           body: |
             ${{ steps.Changelog.outputs.changelog }}
+            https://github.com/org/repo/compare/${{ steps.previoustag.outputs.tag }}...${{ steps.get-latest-tag.outputs.tag }}
           files: |
             dist/*.whl
             dist/*.tar.gz
