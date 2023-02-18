@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{% block title %} Edit "{{ asset['id'] }}" {% endblock %}</h1>
+    <h1>{% block title %} Edit {{ asset.id }} {% endblock %}</h1>
     <form method="post">
         <label for="type">Asset Type</label>
        <br>
        <select id="asset_type", name="asset_type">
-              <option value="mobile">Base Station</option>
-              <option value="portable">Handheld</option>
-              <option value="surv">Surveillance</option>
-              <option value="dring">D-Ring</option>
-              <option value="headset">Headset</option>
-              <option value="speakermic">Speaker Mic</option>
+            <option value="{{asset.asset_type}}">{{asset.asset_type}}</option>
+            {% for asset_type in asset_types %}
+                {% if asset_type[0] != asset.asset_type %}
+                    <option value="{{ asset_type[0] }}">{{ asset_type[0] }}</option>
+                {% endif %}
+            {% endfor %}
        </select>
        <br>
        <label for="status">Asset Status</label>
