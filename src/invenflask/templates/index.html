@@ -2,26 +2,21 @@
 
 {% block content %}
 <h1>{% block title %} Asset Total "{{ asset_total }}" {% endblock %}</h1>
-<table id="Status" class="table table-striped">
+  <table>
     <thead>
       <tr>
-        <th>Category</th>
-        <th>Count</th>
+        <th style="text-align:left">Category</th>
+        <th style="text-align:left">Total</th>
+        <th style="text-align:left">Checked Out</th>
         
       </tr>
     </thead>
     <tbody>
-      {% for asset_type, count in asset_type %}
+      {% for asset_type, TotalCount, AvailCount in asset_status %}
         <tr>
           <td>{{ asset_type }}</td>
-          <td>{{ count }}</td>
-          </td>
-        </tr>
-      {% endfor %}
-      {% for asset_status, count in asset_status %}
-        <tr>
-          <td>{{ asset_status }}</td>
-          <td>{{ count }}</td>
+          <td>{{ TotalCount }}</td>
+          <td>{{ AvailCount }}</td>
           </td>
         </tr>
       {% endfor %}

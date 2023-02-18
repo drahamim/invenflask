@@ -86,7 +86,8 @@ def index():
         'SELECT asset_type, COUNT(*) FROM assets GROUP BY asset_type'
     ).fetchall()
     asset_status = conn.execute(
-        'SELECT asset_status, COUNT(*) FROM assets GROUP BY asset_status'
+        "SELECT asset_type, COUNT() AS TotalCount,"
+        "SUM(asset_status = 'checkedout') AS AvailCount from assets GROUP BY asset_type;"
     ).fetchall()
     conn.commit()
     return render_template(
