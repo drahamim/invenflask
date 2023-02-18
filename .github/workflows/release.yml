@@ -17,10 +17,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Changelog
-        uses: Bullrich/generate-release-changelog@master
-        id: Changelog
-        env:
-          REPO: ${{ github.repository }}
+        run: bash .github/workflows/changelog.sh
       - name: Get Next Version
         id: semver
         uses: ietf-tools/semver-action@v1
@@ -30,6 +27,8 @@ jobs:
           noVersionBumpBehavior: silent
       - name: Echo Tag
         run: echo ${{ steps.semver.outputs.next }}
+      - name: Echo Changelog
+        run: echo ${{ steps.Changelog.outputs.changelog }}
       - name: Create Release
         if: ${{ steps.semver.outputs.next }}
         id: create_release
