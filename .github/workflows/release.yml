@@ -18,6 +18,7 @@ jobs:
           fetch-depth: 0
       - name: Changelog
         run: bash .github/workflows/changelog.sh
+        id: Changelog
       - name: Get Next Version
         id: semver
         uses: ietf-tools/semver-action@v1
