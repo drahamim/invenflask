@@ -18,7 +18,7 @@ app.config['upload_folder'] = upload_folder
 os.makedirs(app.config['upload_folder'], exist_ok=True)
 print(config_path)
 
-print(app.config)
+# print(app.config)
 
 
 def get_db_connection():
@@ -122,14 +122,6 @@ def create_asset():
     return render_template('create_asset.html')
 
 
-@app.route('/status')
-def status():
-    conn = get_db()
-    assets = conn.execute('SELECT * FROM assets').fetchall()
-    conn.commit()
-    return render_template('status.html', assets=assets)
-
-
 @app.route('/<id>/edit/', methods=('GET', 'POST'))
 def edit_asset(id):
 
@@ -150,7 +142,15 @@ def edit_asset(id):
         return render_template('edit_asset.html', asset=asset, asset_types=asset_types)
 
 
-@app.route('/delete/<id>/', methods=('POST',))
+@app.route('/status')
+def status():
+    conn = get_db()
+    assets = conn.execute('SELECT * FROM assets').fetchall()
+    conn.commit()
+    return render_template('status.html', assets=assets)
+
+
+@app.route('/delete/<id>', methods=('POST',))
 def delete(id):
     asset = get_asset(id, "edit")
     conn = get_db()
@@ -160,7 +160,91 @@ def delete(id):
     return redirect(url_for('index'))
 
 
-@app.route('/staff/', methods=('GET', 'POST'))
+@app.route('/staff/create', methods=('GET', 'POST'))
+def staff_create():
+    staff_div = "--"
+    staff_dept = "--"
+    if request.method == 'POST':
+        conn = get_db()
+        staff_id = request.form['staffid']
+        # auto_gen = request.form['staffgen']
+        first_name = request.form['firstname']
+        last_name = request.form['lastname']
+        staff_title = request.form['title']
+        if request.form['division']:
+            staff_div = request.form['division']
+        if request.form['department']:
+            staff_dept = request.form['department']
+
+        # if not staff_id and auto_gen != 'on':
+        if not staff_id:
+            flash('Staff ID or Auto Generate is required')
+        elif not first_name or not last_name:
+            flash('Missing Name information')
+        elif not staff_title:
+            flash('Missing Staff Title')
+        elif staff_id == get_staff(staff_id)['id']:
+            flash('Staff ID already exists. Try again.')
+        else:
+            # if auto_gen == 'on':
+            #     last_staff = conn.execute(
+            #         'SELECT id FROM staffs order by length(id) desc, id desc limit 1'
+            #     ).fetchone()['id']
+            #     conn.commit()
+            #     print(re.split("(\d+)", last_staff))
+            #     next_staff_id = int(re.split("(\d+)", last_staff)[1]) + 1
+            #     print(next_staff_id)
+            #     staff_id =  "SE" + str(next_staff_id)
+            #     print(staff_id)
+            try:
+                conn = get_db()
+                conn.execute(
+                    'INSERT INTO staffs (id, first_name, last_name, division, department, title)'
+                    'VALUES(?,?,?,?,?,?)',
+                    (staff_id, first_name, last_name,
+                     staff_div, staff_dept, staff_title))
+                conn.commit()
+                return redirect(url_for('staff'))
+            except sqlite3.IntegrityError:
+                flash("Staff already exists")
+                return redirect(url_for('staff_create'))
+
+    return render_template('staff_create.html')
+
+
+@app.route('/staff/delete/<id>/', methods=('POST',))
+def staff_delete(id):
+    staff = get_staff(id)
+    conn = get_db()
+    conn.execute('DELETE FROM staffs WHERE id = ?', (staff,))
+    conn.commit()
+    flash('Staff "{}" was successfully deleted!'.format(id))
+    return redirect(url_for('staff'))
+
+
+@app.route('/staff/edit/<id>/', methods=('GET', 'POST'))
+def staff_edit(id):
+    if request.method == 'POST':
+        staff_id = id
+        first_name = request.form['firstname']
+        last_name = request.form['lastname']
+        staff_title = request.form['title']
+        staff_div = request.form['division']
+        staff_dept = request.form['department']
+
+        conn = get_db()
+        conn.execute(
+            'UPDATE staffs SET first_name = ?, last_name = ?, division = ?, department = ?, title = ? where id = ?',
+            (first_name, last_name, staff_div, staff_dept, staff_title, staff_id))
+        conn.commit()
+        return redirect(url_for('staff'))
+    if request.method == 'GET':
+        conn = get_db()
+        staff = get_staff(id)
+        return render_template('staff_edit.html', staff=staff)
+
+
+@app.route('/staff', methods=('GET', 'POST'))
 def staff():
     conn = get_db()
     if request.method == 'POST':
