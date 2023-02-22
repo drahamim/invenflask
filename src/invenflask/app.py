@@ -5,7 +5,6 @@ import sqlite3
 import os
 import pandas as pd
 from werkzeug.utils import secure_filename
-import re
 
 
 config_path = Path.cwd().joinpath('config.py')
@@ -232,7 +231,7 @@ def staff_edit(id):
         staff_title = request.form['title']
         staff_div = request.form['division']
         staff_dept = request.form['department']
-        
+
         conn = get_db()
         conn.execute(
             'UPDATE staffs SET first_name = ?, last_name = ?, division = ?, department = ?, title = ? where id = ?',
