@@ -162,7 +162,7 @@ def delete(id):
 
 
 @app.route('/staff/create', methods=('GET', 'POST'))
-def create_staff():
+def staff_create():
     staff_div = "--"
     staff_dept = "--"
     if request.method == 'POST':
@@ -206,7 +206,7 @@ def create_staff():
                 return redirect(url_for('staff'))
             except sqlite3.IntegrityError:
                 flash("Staff already exists")
-                return redirect(url_for('create_staff'))
+                return redirect(url_for('staff_create'))
 
     return render_template('staff_create.html')
 
