@@ -184,6 +184,8 @@ def staff_create():
             flash('Missing Name information')
         elif not staff_title:
             flash('Missing Staff Title')
+        elif staff_id == get_staff(staff_id)['id']:
+            flash('Staff ID already exists. Try again.')
         else:
             # if auto_gen == 'on':
             #     last_staff = conn.execute(
