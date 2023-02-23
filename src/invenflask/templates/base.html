@@ -1,56 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
     <title>{% block title %} {% endblock %}AssetCheckout</title>
-    <style>
-        nav a {
-            color: #d64161;
-            font-size: 2em;
-            margin-left: 5px;
-            text-decoration: none;
-        
-            
-        }
-        nav a:not(:first-child):before {
-        content: " | ";
-        }
-
-        .alert {
-            padding: 20px;
-            margin: 5px;
-            color: #970020;
-            background-color: #ffd5de;
-        }
-
-        table, th, td {
-            border: 1px solid black;
-        }
-    </style>
-</head>
-<body>
-    <nav>    
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('create_asset') }}">Create Asset</a>
-        <a href="{{ url_for('checkin') }}">Check In</a>
-        <a href="{{ url_for('checkout') }}">Check Out</a>
-        <a href="{{ url_for('status') }}">Asset Status</a>
-        <a href="{{ url_for('staff_create') }}">Create Staff</a>
-        <a href="{{ url_for('staff') }}">Staff</a>
-        <a href="{{ url_for('bulk_import') }}">Bulk Import</a>
-        <a href="{{ url_for('history') }}">History</a>
-        <!-- <a href="{{ url_for('status') }}">Asset Status</a>
-        <a href="{{ url_for('status') }}">Asset Status</a>
-         -->
-        <a href="#">About</a>
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/min.css') }}">
+    {{ bootstrap.load_css() }}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Asset Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('checkin') }}">Check In
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('checkout') }}">Check Out
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false">Create</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ url_for('create_asset') }}">Create Asset</a>
+                            <a class="dropdown-item" href="{{ url_for('staff_create') }}">Create Staff</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ url_for('bulk_import') }}">Bulk Import</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false">Status</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ url_for('status') }}">Asset Status</a>
+                            <a class="dropdown-item" href="{{ url_for('staff') }}">Staff List</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('history') }}">History
+                        </a>
+                    </li>
+                </ul>
+                <!-- <form class="d-flex">
+                <input class="form-control me-sm-2" type="search" placeholder="Search">
+                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+                </form> -->
+            </div>
+        </div>
     </nav>
+</head>
+
+<body>
     <hr>
     <div class="content">
         {% for message in get_flashed_messages() %}
-            <div class="alert">{{ message }}</div>
+        <div class="alert">{{ message }}</div>
         {% endfor %}
         {% block content %} {% endblock %}
     </div>
+    {{ bootstrap.load_js() }}
 </body>
+
 </html>

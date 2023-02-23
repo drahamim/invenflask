@@ -1,5 +1,7 @@
 from flask import Flask
 from flask import render_template, request, url_for, flash, redirect, abort, g, session
+from flask_assets import Bundle, Environment
+from flask_bootstrap import Bootstrap5
 from pathlib import Path
 import sqlite3
 import os
@@ -17,6 +19,7 @@ app.config.from_pyfile(config_path)
 app.config['upload_folder'] = upload_folder
 os.makedirs(app.config['upload_folder'], exist_ok=True)
 print(config_path)
+bootstrap = Bootstrap5(app)
 
 # print(app.config)
 
@@ -244,7 +247,7 @@ def staff_edit(id):
         return render_template('staff_edit.html', staff=staff)
 
 
-@app.route('/staff', methods=('GET', 'POST'))
+@app.route('/staff/', methods=('GET', 'POST'))
 def staff():
     conn = get_db()
     if request.method == 'POST':
