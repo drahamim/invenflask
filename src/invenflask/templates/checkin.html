@@ -2,14 +2,18 @@
 
 {% block content %}
     <h1>{% block title %} Checkin Asset {% endblock %}</h1>
-    <form method="POST">
-        <label for="title">ID</label>
-        <br>
-        <input type="text" name="id"
-               placeholder="Asset ID"
-               value="{{ request.form['id'] }}"></input>
-        <br>
-        <button type="submit">Checkin</button>
-    </form>
+    <fieldset>
+        <form method="POST">
+            <div class="form-group">
+            <label class="form-lable mt-4" for="title">ID</label>
+            <br>
+            <input type="text" name="id"
+                placeholder="Asset ID" 
+                value="{{ request.form['id'] }}"></input>
+            <br>
+            <button type="submit">Checkin</button>
+            </div>
+        </form>
+    </fieldset>    
 {% endblock %}
 

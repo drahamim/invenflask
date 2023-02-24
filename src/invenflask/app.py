@@ -53,7 +53,7 @@ def get_asset(asset_id, action):
     conn.commit()
     if action == "edit":
         if asset is None:
-            abort(404)
+           return False
         else:
             print(asset)
             return asset
@@ -318,8 +318,8 @@ def checkin():
         if not asset_id:
             flash('Asset ID is required')
         elif get_asset(asset_id, "edit") is False:
-            flash("Asset does not exist. Please make it below")
-            return redirect(url_for('create_asset'))
+            flash("Asset does not exist. Please Try again")
+            return redirect(url_for('checkin'))
         elif get_checkout(asset_id) is None:
             flash("Asset Not checked out")
             return redirect(url_for('checkin'))

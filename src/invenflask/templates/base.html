@@ -45,7 +45,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('history') }}">History
+                        <a class="nav-link" href="{{ url_for('history') }}">History
                         </a>
                     </li>
                 </ul>
@@ -62,7 +62,7 @@
     <hr>
     <div class="content">
         {% for message in get_flashed_messages() %}
-        <div class="alert">{{ message }}</div>
+        <div class="alert alert-danger">{{ message }}</div>
         {% endfor %}
         {% block content %} {% endblock %}
     </div>
