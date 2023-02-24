@@ -1,11 +1,12 @@
-from flask import Flask
-from flask import render_template, request, url_for, flash, redirect, abort, g, session
-from pathlib import Path
-import sqlite3
 import os
-import pandas as pd
-from werkzeug.utils import secure_filename
+import sqlite3
+from pathlib import Path
 
+import pandas as pd
+from flask import (Flask, flash, g, redirect, render_template, request,
+                   session, url_for)
+from flask_bootstrap import Bootstrap5
+from werkzeug.utils import secure_filename
 
 config_path = Path.cwd().joinpath('config.py')
 
@@ -17,6 +18,7 @@ app.config.from_pyfile(config_path)
 app.config['upload_folder'] = upload_folder
 os.makedirs(app.config['upload_folder'], exist_ok=True)
 print(config_path)
+bootstrap = Bootstrap5(app)
 
 # print(app.config)
 
@@ -50,7 +52,7 @@ def get_asset(asset_id, action):
     conn.commit()
     if action == "edit":
         if asset is None:
-            abort(404)
+            return False
         else:
             print(asset)
             return asset
@@ -244,7 +246,7 @@ def staff_edit(id):
         return render_template('staff_edit.html', staff=staff)
 
 
-@app.route('/staff', methods=('GET', 'POST'))
+@app.route('/staff/', methods=('GET', 'POST'))
 def staff():
     conn = get_db()
     if request.method == 'POST':
@@ -315,8 +317,8 @@ def checkin():
         if not asset_id:
             flash('Asset ID is required')
         elif get_asset(asset_id, "edit") is False:
-            flash("Asset does not exist. Please make it below")
-            return redirect(url_for('create_asset'))
+            flash("Asset does not exist. Please Try again")
+            return redirect(url_for('checkin'))
         elif get_checkout(asset_id) is None:
             flash("Asset Not checked out")
             return redirect(url_for('checkin'))
