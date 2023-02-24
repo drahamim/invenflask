@@ -1,13 +1,12 @@
-from flask import Flask
-from flask import render_template, request, url_for, flash, redirect, abort, g, session
-from flask_assets import Bundle, Environment
-from flask_bootstrap import Bootstrap5
-from pathlib import Path
-import sqlite3
 import os
-import pandas as pd
-from werkzeug.utils import secure_filename
+import sqlite3
+from pathlib import Path
 
+import pandas as pd
+from flask import (Flask, flash, g, redirect, render_template, request,
+                   session, url_for)
+from flask_bootstrap import Bootstrap5
+from werkzeug.utils import secure_filename
 
 config_path = Path.cwd().joinpath('config.py')
 
