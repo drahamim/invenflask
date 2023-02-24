@@ -53,7 +53,7 @@ def get_asset(asset_id, action):
     conn.commit()
     if action == "edit":
         if asset is None:
-           return False
+            return False
         else:
             print(asset)
             return asset
