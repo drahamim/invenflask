@@ -8,8 +8,22 @@
             <option value="assets">Assets</option>
             <option value="staff">Staff</option>
         </select>
-        <p><input type=file name=file></p>
+        <div class="form-group">
+            <label for="formFile" class="form-label-lg mt-4">Select CSV File</label>
+            <input class="form-control" type="file" id="formFile" name="file">
+        </div>
         <p><input type=submit  value=Submit></p>
     </form>
 {% endblock %}
 
+
+
+<div class="form-group">
+    <label class="col-form-label mt-4" for="inputDefault">Default input</label>
+    <input type="text" class="form-control" placeholder="Default input" id="inputDefault">
+  </div>
+
+  <div class="form-group">
+    <label for="formFile" class="form-label mt-4">Default file input example</label>
+    <input class="form-control" type="file" id="formFile" name="file">
+  </div>
