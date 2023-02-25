@@ -91,10 +91,12 @@ def index():
         "SELECT asset_type, COUNT() AS TotalCount,"
         "SUM(asset_status = 'checkedout') AS AvailCount from assets GROUP BY asset_type;"
     ).fetchall()
+    checkouts = conn.execute(
+        "select * from checkouts").fetchall()
     conn.commit()
     return render_template(
         'index.html', assets=assets, asset_total=asset_total,
-        asset_type=asset_types, asset_status=asset_status)
+        asset_type=asset_types, asset_status=asset_status, checkouts=checkouts)
 
 
 @app.route('/create_asset', methods=('GET', 'POST'))

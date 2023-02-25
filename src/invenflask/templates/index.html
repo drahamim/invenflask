@@ -22,4 +22,31 @@
       {% endfor %}
     </tbody>
   </table>
-{% endblock %}
+<h4>Checked Out Assets</h4>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th style="text-align:left">Asset ID</th>
+        <th style="text-align:left">Staff ID</th>
+        <th style="text-align:left">Department</th>
+        <th style="text-align:left">Checked Out</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in checkouts %}
+        <tr>
+          <td>{{ item.assetid }}</td>
+          <td>{{ item.staffid }}</td>
+          <td>{{ item.department }}</td>
+          <td>{{ item.timestamp }}</td>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+
+
+  {% endblock %}
