@@ -1,27 +1,54 @@
 {% extends 'base.html' %}
 
-{% block content %}
-    <h1>{% block title %} Checkout Asset {% endblock %}</h1>
-    <form method="POST">
-        <label for="title">ID</label>
-        <br>
-        <input type="text" name="id"
-               placeholder="Asset ID"
-               value="{{ request.form['id'] }}"></input>
-        <br>
-        <label for="title">Accessory</label>
-        <br>
-        <input type="text" name="accessoryid"
-                placeholder="Accessory ID"
-                value="{{ request.form['accessoryid'] }}"></input>
-        <br>
-        <label for="type">Staff ID</label>
-        <br>
-        <input type="text" name="staffid"
-                placeholder="Staff ID"
-                value=""{{ request.form[staffid]}}></input>
-        <br>
-        <button type="submit">Checkout</button>
-    </form>
+{% block head %}
+<script type="text/javascript">
+
+    // Focus on Staff ID on load
+    function FocusOnLoad() {
+        document.getElementById("staffid").focus();
+    }
+
+    // Focus on Radio ID on [enter]
+    function runScript(e) {
+        if (e.keyCode == 13) {
+            document.getElementById("radio").focus();
+            return false;
+        }
+    }
+
+    // Focus on Headset ID on [enter]
+    function runScript1(e) {
+        if (e.keyCode == 13) {
+            document.getElementById("accessory").focus();
+            return false;
+        }
+    }
+    theform.setAttribute("autocomplete", "off");
+</script>
+
 {% endblock %}
 
+{% block content %}
+
+<h1>{% block title %} Checkout Asset {% endblock %}</h1>
+<form method="POST" id='theform' , class="a-form">
+    <label for="type">Staff ID</label>
+    <br>
+    <input type="text" id="staffid" name="staffid" placeholder="Staff ID" value="{{ request.form[staffid]}}" autocomplete="off"
+        onkeypress="return runScript(event);"></input>
+    <br>
+
+    <label for="title">Asset ID</label>
+    <br>
+    <input type="text" id="radio" name="id" placeholder="Asset ID" value="{{ request.form['id'] }}" autocomplete="off"
+        onkeypress="return runScript1(event);"></input>
+    <br>
+
+    <label for="title">Accessory</label>
+    <br>
+    <input type="text" id="accessory" name="accessoryid" placeholder="Accessory ID"
+        value="{{ request.form['accessoryid'] }}" autocomplete="off"></input>
+    <br>
+    <button type="submit">Checkout</button>
+</form>
+{% endblock %}
