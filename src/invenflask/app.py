@@ -483,5 +483,5 @@ def single_history(rq_type, item_id):
         history = conn.execute(
             'select * from history where staffid = ?', (item_id,))
         conn.commit()
-    return render_template('single_history.html', hist_type=rq_type, 
+    return render_template('single_history.html', hist_type=rq_type,
                            current=current, history=history)
