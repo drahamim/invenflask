@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if hist_type == 'staff' %}
+<h1>Staff History</h1>
+<label></label>
+<table id="current" class="table table-striped">
+  <thead>
+    <tr>
+      <th>Asset ID</th>
+      <th>Time Stamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in current %}
+    <tr>
+      <td>{{ item.assetid }}</td>
+      <td>{{ item.timestamp }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<label>History</label>
+<table id="history" class="table table-striped">
+  <thead>
+    <tr>
+      <th>Asset ID</th>
+      <th>Check Out</th>
+      <th>Check In</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in history %}
+    <tr>
+      <td>{{ item.assetid }}</td>
+      <td>{{ item.checkouttime }}</td>
+      <td>{{ item.returntime }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<h1> Asset History </h1>
+<label>Current</label>
+<table id="Staff" class="table table-striped">
+  <thead>
+    <tr>
+      <th style="text-align:left">Staff ID</th>
+      <th style="text-align:left">Department</th>
+      <th style="text-align:left">Timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in current %}
+    <tr>
+      <td>{{ item.staffid }}</td>
+      <td>{{ item.department }}</td>
+      <td>{{ item.timestamp }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<label>History</label>
+<table id="history" class="table table-striped">
+  <thead>
+    <tr>
+      <th>Staff ID</th>
+      <th>Department</th>
+      <th>division</th>
+      <th>Check Out</th>
+      <th>Check In</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in history %}
+    <tr>
+      <td>{{ item.staffid }}</td>
+      <td>{{ item.department }}</td>
+      <td>{{ item.division }}</td>
+      <td>{{ item.checkouttime }}</td>
+      <td>{{ item.returntime }}</td>
+    </tr>
+  </tbody>
+</table>
+{% endfor %}
+
+{% endif %}
+{{ data_var|safe }}
+
+{% endblock %}
