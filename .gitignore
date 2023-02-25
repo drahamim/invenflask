@@ -113,4 +113,4 @@ database.db
 
 config.py
 #ignore static folder for uploads
-static/
+static/uploads.
