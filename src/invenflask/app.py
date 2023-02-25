@@ -479,7 +479,6 @@ def single_history(rq_type, item_id):
         history = conn.execute(
             'select * from history where assetid = ?', (item_id,))
         conn.commit()
-        print(item_info)
     if rq_type == 'staff':
         item_info = get_staff(item_id)
         conn = get_db()
