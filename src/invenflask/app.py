@@ -473,12 +473,15 @@ def single_history(rq_type, item_id):
 
     if rq_type == 'asset':
         conn = get_db()
+        item_info = get_asset(item_id, 'edit')
         current = conn.execute(
             'select * from checkouts where assetid = ?', (item_id,))
         history = conn.execute(
             'select * from history where assetid = ?', (item_id,))
         conn.commit()
+        print(item_info)
     if rq_type == 'staff':
+        item_info = get_staff(item_id)
         conn = get_db()
         current = conn.execute(
             'select * from checkouts where staffid = ?', (item_id,))
@@ -486,4 +489,4 @@ def single_history(rq_type, item_id):
             'select * from history where staffid = ?', (item_id,))
         conn.commit()
     return render_template('single_history.html', hist_type=rq_type,
-                           current=current, history=history)
+                           current=current, history=history, item_info=item_info)
