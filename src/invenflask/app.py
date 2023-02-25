@@ -309,7 +309,7 @@ def checkout():
                     "Asset already checked out! Please check-in "
                     "before checking out")
                 return redirect(url_for('checkout'))
-    return render_template('checkout.html')
+    return render_template('checkout.html', load_checkout="onload='FocusOnLoad()'")
 
 
 @app.route('/checkin', methods=('GET', 'POST'))
