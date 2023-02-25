@@ -3,7 +3,31 @@
 {% block content %}
 {% if hist_type == 'staff' %}
 <h1>Staff History</h1>
-<label></label>
+
+<table id="Staff" class="table table-striped">
+  <thead>
+    <tr>
+      <th style="text-align:left">First Name</th>
+      <th style="text-align:left">Last Name</th>
+      <th style="text-align:left">Staff ID</th>
+      <th style="text-align:left">Division</th>
+      <th style="text-align:left">Department</th>
+      <th style="text-align:left">Title</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td>{{ item_info.first_name }}</td>
+        <td>{{ item_info.last_name }}</td>
+        <td>{{ item_info.id }}</td>
+        <td>{{ item_info.division }}</td>
+        <td>{{ item_info.department }}</td>
+        <td>{{ item_info.title }}</td>
+      </tr>
+  </tbody>
+</table>
+
+<h4>Current Assets</h4>
 <table id="current" class="table table-striped">
   <thead>
     <tr>
@@ -21,7 +45,7 @@
   </tbody>
 </table>
 
-<label>History</label>
+<h4>History</h4>
 <table id="history" class="table table-striped">
   <thead>
     <tr>
@@ -41,9 +65,27 @@
   </tbody>
 </table>
 
+
 {% else %}
 
+
 <h1> Asset History </h1>
+<table id="Assets" class="table table-striped">
+  <thead>
+    <tr>
+      <th>Radio ID</th>
+      <th>Type</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td>{{ item_info.id }}</td>
+        <td>{{ item_info.asset_type }}</td>
+        <td>{{ item_info.asset_status }}</td>
+      </tr>
+  </tbody>
+</table>
 <label>Current</label>
 <table id="Staff" class="table table-striped">
   <thead>
