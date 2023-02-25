@@ -56,9 +56,11 @@
             </div>
         </div>
     </nav>
+    {% block head %} 
+    {% endblock %}
 </head>
 
-<body>
+<body {{ load_checkout|safe if load_checkout is not none else 'NONE'  }} >
     <hr>
     <div class="content">
         {% for message in get_flashed_messages() %}
