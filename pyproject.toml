@@ -11,9 +11,9 @@ requires-python = ">=3.10"
 dependencies = [
     "flask >=2.2.2, <3",
     "toml >=0.10.2, <1",
-    "pandas==1.5.3",
+    "pandas ==1.5.3",
     "flask-assets >=2.0",
-    "flask-bootstap5 >=0.1.dev1",
+    "Flask-Bootstrap >=3.3.5",
     "Bootstrap-flask >=2.2.0"
 
 ]
