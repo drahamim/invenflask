@@ -346,7 +346,7 @@ def checkin():
                             ('Available', asset_id))
                 conn.commit()
                 flash('Asset checkin Completed')
-                return redirect(url_for('checkout'))
+                return redirect(url_for('checkin'))
             except sqlite3.IntegrityError as e:
                 flash(f"{e}")
                 return redirect(url_for('checkin'))
@@ -464,3 +464,24 @@ def parseCSV_staff(
             flash("Asset upload failed import")
             return redirect(url_for('create_asset'))
     return redirect(url_for('status'))
+
+
+@app.route('/single_history/<rq_type>/<item_id>')
+def single_history(rq_type, item_id):
+
+    if rq_type == 'asset':
+        conn = get_db()
+        current = conn.execute(
+            'select * from checkouts where assetid = ?', (item_id,))
+        history = conn.execute(
+            'select * from history where assetid = ?', (item_id,))
+        conn.commit()
+    if rq_type == 'staff':
+        conn = get_db()
+        current = conn.execute(
+            'select * from checkouts where staffid = ?', (item_id,))
+        history = conn.execute(
+            'select * from history where staffid = ?', (item_id,))
+        conn.commit()
+    return render_template('single_history.html', hist_type=rq_type,
+                           current=current, history=history)

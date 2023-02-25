@@ -10,6 +10,8 @@
         <th style="text-align:left">Division</th>
         <th style="text-align:left">Department</th>
         <th style="text-align:left">Title</th>
+        <th style="text-align:left">Edit</th>
+        <th style="text-align:left">History</th>
       </tr>
     </thead>
     <tbody>
@@ -22,6 +24,8 @@
           <td>{{ staff.department }}</td>
           <td>{{ staff.title }}</td>
           <td><button type="button" onclick="document.location.href='/staff/edit/{{staff.id}}'">Edit</button>
+          </td>
+          <td><button type="button" onclick="document.location.href='/single_history/staff/{{staff.id}}'">History</button>
           </td>
         </tr>
       {% endfor %}
