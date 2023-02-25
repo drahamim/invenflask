@@ -337,15 +337,16 @@ def checkin():
                      asset_checkout['timestamp']))
                 conn.execute(
                     'DELETE from checkouts WHERE assetid = ?', (asset_id,))
-                if get_asset(asset_id, 'edit') is dict:
-                    if get_asset(asset_id, "edit")['asset_status'] == "damaged":
-                        conn.execute(
-                            'UPDATE assets SET asset_status = ? WHERE id = ?',
-                            ('damaged', asset_id))
-                    else:
-                        conn.execute(
-                            'UPDATE assets SET asset_status = ? WHERE id = ?',
-                            ('Available', asset_id))
+                if get_asset(asset_id, "edit")['asset_status'] == "damaged":
+                    conn.execute(
+                        'UPDATE assets SET asset_status = ? WHERE id = ?',
+                        ('damaged', asset_id,))
+                    print(f'Checkin damaged {asset_id}')
+                else:
+                    conn.execute(
+                        'UPDATE assets SET asset_status = ? WHERE id = ?',
+                        ('Available', asset_id,))
+                    print(f'Checkin {asset_id} as Available')
                 conn.commit()
                 flash('Asset checkin Completed')
                 return redirect(url_for('checkin'))
