@@ -261,7 +261,6 @@ def staff():
 @app.route('/checkout', methods=('GET', 'POST'))
 def checkout():
     if request.method == 'POST':
-        
         asset_id = request.form['id']
         accessory_id = request.form['accessoryid']
         staff_id = request.form['staffid']
