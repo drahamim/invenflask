@@ -67,6 +67,9 @@ def get_staff(staff_id):
     staff = conn.execute('SELECT * FROM staffs WHERE id = ?',
                          (staff_id,)).fetchone()
     conn.commit()
+    print(f'Get Staff {staff}')
+    if not staff:
+        return False
     return staff
 
 
@@ -180,15 +183,15 @@ def staff_create():
         if request.form['department']:
             staff_dept = request.form['department']
 
-        # if not staff_id and auto_gen != 'on':
         if not staff_id:
             flash('Staff ID or Auto Generate is required')
         elif not first_name or not last_name:
             flash('Missing Name information')
         elif not staff_title:
             flash('Missing Staff Title')
-        elif staff_id == get_staff(staff_id)['id']:
-            flash('Staff ID already exists. Try again.')
+        elif get_staff(staff_id):
+            if get_staff(staff_id) == staff_id:
+                flash('Staff ID already exists. Try again.')
         else:
             # if auto_gen == 'on':
             #     last_staff = conn.execute(
