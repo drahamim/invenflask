@@ -189,7 +189,7 @@ def staff_create():
             flash('Missing Name information')
         elif not staff_title:
             flash('Missing Staff Title')
-        elif get_staff(staff_id): 
+        elif get_staff(staff_id):
             if get_staff(staff_id) == staff_id:
                 flash('Staff ID already exists. Try again.')
         else:
