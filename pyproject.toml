@@ -1,6 +1,6 @@
 [project]
 name = "invenflask"
-version = "2.0.0"
+dynamic = ["version"]
 authors = [
     { name = "Daniel Rahamim" }
 ]
@@ -25,5 +25,8 @@ invenflask-init-db = "invenflask.init_db:main"
 "Bug Tracker" = "https://github.com/drahamim/invenflask/issues"
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=7.1"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/invenflask/_version.py"
