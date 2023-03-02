@@ -52,10 +52,11 @@ Within the unpacked directory:
 For development, perform an _editable install_ instead at step 2 above, with `pip install -e .`
 
 ## Gunicorn (Production)
-1. 
-```
-venv/bin/pip install gunicorn
-```
+Follow Steps 1-4 of the Setup guide then continue with the following:
+1. Install Gunicorn
+   ```
+   venv/bin/pip install gunicorn
+   ```
 2. Run gunicorn
    ```
    venv/bin/gunicorn -w 1 --bind 0.0.0.0:8000 wsgi:app
