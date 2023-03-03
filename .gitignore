@@ -113,4 +113,5 @@ database.db
 
 config.py
 #ignore static folder for uploads
-static/uploads.
+static/uploads
+src/invenflask/_version.py
