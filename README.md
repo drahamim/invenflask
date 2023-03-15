@@ -75,7 +75,7 @@ Currently we do not support less than 6 columns on the import.
 If you don't have all the matching just create blank columns with the headers as needed. 
 
 ## Import Assets
-This can be done on teh **Bulk Import** page.
+This can be done on the **Bulk Import** page.
 
 Assets currently support the following columns:
 
