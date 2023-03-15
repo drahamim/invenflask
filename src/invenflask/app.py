@@ -428,7 +428,7 @@ def showData():
 
 def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
     # Use Pandas to parse the CSV file
-    csvData = pd.read_csv(filePath, header=0)
+    csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
     # Loop through the Rows
 
     print("PARSING DATA")
@@ -454,7 +454,7 @@ def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
 def parseCSV_staff(
         filePath, first_name, last_name, staff_id, division, department, title):
     # Use Pandas to parse the CSV file
-    csvData = pd.read_csv(filePath, header=0)
+    csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
     # Loop through the Rows
 
     for i, row in csvData.iterrows():
