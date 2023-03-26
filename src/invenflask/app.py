@@ -271,7 +271,7 @@ def checkout():
             flash('Asset ID is required')
         elif not staff_id:
             flash('Staff ID required')
-        elif get_staff(staff_id) is None:
+        elif not get_staff(staff_id):
             flash('Staff does not exist')
             return redirect(url_for('checkout'))
         elif get_asset(asset_id, 'edit') is False:
