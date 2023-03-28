@@ -7,7 +7,7 @@ from flask import (Flask, flash, g, redirect, render_template, request,
                    session, url_for)
 from flask_bootstrap import Bootstrap5
 from werkzeug.utils import secure_filename
-from flask_modals import Modal,render_template_modal
+from flask_modals import Modal, render_template_modal
 
 
 config_path = Path.cwd().joinpath('config.py')
