@@ -7,6 +7,8 @@ from flask import (Flask, flash, g, redirect, render_template, request,
                    session, url_for)
 from flask_bootstrap import Bootstrap5
 from werkzeug.utils import secure_filename
+from flask_modals import Modal,render_template_modal
+
 
 config_path = Path.cwd().joinpath('config.py')
 
@@ -19,7 +21,7 @@ app.config['upload_folder'] = upload_folder
 os.makedirs(app.config['upload_folder'], exist_ok=True)
 print(config_path)
 bootstrap = Bootstrap5(app)
-
+modal = Modal(app)
 # print(app.config)
 
 
@@ -273,7 +275,8 @@ def checkout():
             flash('Staff ID required')
         elif not get_staff(staff_id):
             flash('Staff does not exist')
-            return redirect(url_for('checkout'))
+            # return render_template_modal('staff_create.html', staffid=staff_id)
+            return render_template('staff_create.html', staffid=staff_id)
         elif get_asset(asset_id, 'edit') is False:
             flash("Asset does not exist. Please make it below")
             return redirect(url_for('create_asset'))
