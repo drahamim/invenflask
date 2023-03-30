@@ -34,13 +34,15 @@
 <form method="POST" id='theform' , class="a-form">
     <label for="type">Staff ID</label>
     <br>
-    <input type="text" id="staffid" name="staffid" placeholder="Staff ID" value="{{ request.form[staffid]}}" autocomplete="off"
+    <input type="text" id="staffid" name="staffid" placeholder="Staff ID"
+        value="{{ request.form[staffid]}}" autocomplete="off"
         onkeypress="return runScript(event);"></input>
     <br>
 
     <label for="title">Asset ID</label>
     <br>
-    <input type="text" id="radio" name="id" placeholder="Asset ID" value="{{ request.form['id'] }}" autocomplete="off"
+    <input type="text" id="radio" name="id" placeholder="Asset ID" 
+        value="{{ request.form['id'] }}" autocomplete="off"
         onkeypress="return runScript1(event);"></input>
     <br>
 
