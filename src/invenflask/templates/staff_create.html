@@ -1,48 +1,113 @@
 {% extends 'base.html' %}
+{% block head %}
+<script type="text/javascript">
+
+       // Focus on Staff ID on load
+       function FocusOnLoad() {
+           document.getElementById("staffid").focus();
+       }
+   
+       // Focus on Radio ID on [enter]
+       function runScript(e) {
+           if (e.keyCode == 13) {
+               document.getElementById("firstname").focus();
+               return false;
+           }
+       }
+   
+       // Focus on Headset ID on [enter]
+       function runScript1(e) {
+           if (e.keyCode == 13) {
+               document.getElementById("lastname").focus();
+               return false;
+           }
+       }
+
+       function runScript2(e) {
+              if (e.keyCode == 13) {
+                  document.getElementById("title").focus();
+                  return false;
+              }
+          }
+
+       function runScript3(e) {
+           if (e.keyCode == 13) {
+               document.getElementById("division").focus();
+               return false;
+           }
+       }
+       
+       function runScript4(e) {
+              if (e.keyCode == 13) {
+                  document.getElementById("department").focus();
+                  return false;
+              }
+          }
+
+       
+
+       theform.setAttribute("autocomplete", "off");
+   </script>
+
+
+
+{% endblock%}
+
 
 {% block content %}
     <h1>{% block title %} Create Staff {% endblock %}</h1>
-    <form method="POST">
+    <form method="POST" id='theform' , class="a-form">
        <label for="title">Staff ID</label>
        <br>
-       <input type="text" name="staffid"
+       <input type="text" name="staffid" id="staffid"
               placeholder="Staff ID"
-              value="{{ request.form['staffid'] }}"></input>
+              value="{{ request.form['staffid'] }}"
+              autocomplete="off"
+              onkeypress="return runScript(event);"></input>
        <!-- <input type="checkbox" id="staffgen" name="staffgen"/>
        <label for="staffgen">Auto Generate Staff ID</label>        -->
        <br>
        <label for="title">First Name</label>
        <br>
-       <input type="text" name="firstname"
+       <input type="text" name="firstname" id="firstname"
               placeholder="First Name"
               value="{{ request.form['firstname'] }}"
-              required="required"></input>
+              required="required"
+              autocomplete="off"
+              onkeypress="return runScript1(event);"></input>
        <br>
        <label for="title">Last Name</label>
        <br>
-       <input type="text" name="lastname"
+       <input type="text" name="lastname" id="lastname"
               placeholder="Last Name"
               value="{{ request.form['lastname'] }}"
-              required="required"></input>
+              required="required"
+              autocomplete="off"
+              onkeypress="return runScript2(event);"></input>
        <br>
        <label for="title">Title</label>
        <br>
-       <input type="text" name="title"
+       <input type="text" name="title" id="title"
               placeholder="Title"
               value="{{ request.form['title'] }}"
-              required="required"></input>
+              required="required"
+              autocomplete="off"
+              onkeypress="return runScript3(event);"></input>
        <br>
        <label for="title">Division</label>
        <br>
-       <input type="text" name="division"
+       <input type="text" name="division" id="division"
               placeholder="Division"
-              value="{{ request.form['division'] }}"></input>
+              value="{{ request.form['division'] }}"
+              autocomplete="off"
+              onkeypress="return runScript4(event);"></input>
        <br>
        <label for="title">Department</label>
        <br>
-       <input type="text" name="department"
+       <input type="text" name="department" id="department"
               placeholder="Department"
-              value="{{ request.form['department'] }}"></input>
+              value="{{ request.form['department'] }}"
+              autocomplete="off"></input>
        <br>
        <button type="submit">Submit</button>
     </form>
