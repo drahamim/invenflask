@@ -496,4 +496,4 @@ def single_history(rq_type, item_id):
         conn.commit()
     return render_template('single_history.html', hist_type=rq_type,
                            current=current, history=history, item_info=item_info
-)
+                           )
