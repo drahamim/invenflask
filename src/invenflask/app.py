@@ -218,7 +218,7 @@ def staff_create():
                 flash("Staff already exists")
                 return redirect(url_for('staff_create'))
 
-    return render_template('staff_create.html')
+    return render_template('staff_create.html', load_checkout="onload='FocusOnLoad()'")
 
 
 @app.route('/staff/delete/<id>/', methods=('POST',))
@@ -276,7 +276,7 @@ def checkout():
         elif not get_staff(staff_id):
             flash('Staff does not exist')
             # return render_template_modal('staff_create.html', staffid=staff_id)
-            return render_template('staff_create.html', staffid=staff_id)
+            return render_template('staff_create.html', staffid=staff_id, load_checkout="onload='FocusOnLoad()'")
         elif get_asset(asset_id, 'edit') is False:
             flash("Asset does not exist. Please make it below")
             return redirect(url_for('create_asset'))
@@ -495,4 +495,5 @@ def single_history(rq_type, item_id):
             'select * from history where staffid = ?', (item_id,))
         conn.commit()
     return render_template('single_history.html', hist_type=rq_type,
-                           current=current, history=history, item_info=item_info)
+                           current=current, history=history, item_info=item_info
+                           )
