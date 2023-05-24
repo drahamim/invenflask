@@ -6,16 +6,17 @@ authors = [
 ]
 description = "A Flask-based asset checkin/checkout system"
 readme = "README.md"
-requires-python = ">=3.10"
+# python 3.9 introduces importlib.resources.files
+requires-python = ">=3.9"
 
 dependencies = [
     "flask >=2.2.2, <3",
     "toml >=0.10.2, <1",
     "pandas ==1.5.3",
     "flask-assets >=2.0",
-    "Flask-Bootstrap >=3.3.5",
-    "Bootstrap-flask >=2.2.0"
-
+    "Bootstrap-flask >=2.2.0",
+    "Flask-Modals >=0.5.1",
+    "wheel >=0"
 ]
 
 [project.scripts]
@@ -30,3 +31,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "src/invenflask/_version.py"
+
+[tool.distutils.bdist_wheel]
+universal = true
