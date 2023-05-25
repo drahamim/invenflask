@@ -13,8 +13,9 @@ dependencies = [
     "toml >=0.10.2, <1",
     "pandas ==1.5.3",
     "flask-assets >=2.0",
-    "Flask-Bootstrap >=3.3.5",
-    "Bootstrap-flask >=2.2.0"
+    "Bootstrap-flask >=2.2.0",
+    "Flask-Models >=0.5.1",
+    "wheel >=0"
 
 ]
 
