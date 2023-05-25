@@ -23,11 +23,11 @@
               <option value="Checkedout">Checked Out</option>
        </select>
         <br>
-        <button type="submit">Submit</button>
+        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
     </form>
     <hr>
     <form action="{{ url_for('delete', id=asset['id']) }}" method="POST">
-        <input type="submit" value="Delete Asset"
+        <input type="submit" value="Delete Asset" class="btn btn-primary btn-lg"
                 onclick="return confirm('Are you sure you want to delete this asset?')">
     </form>
 {% endblock %}
