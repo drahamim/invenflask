@@ -14,7 +14,6 @@ dependencies = [
     "pandas ==1.5.3",
     "flask-assets >=2.0",
     "Bootstrap-flask >=2.2.0",
-    "Flask-Models >=0.5.1",
     "wheel >=0"
 
 ]
