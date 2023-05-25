@@ -175,7 +175,7 @@ def staff_create():
     staff_dept = "--"
     if request.method == 'POST':
         conn = get_db()
-        staff_id = request.form['staffid'].lower()
+        staff_id = request.form['staffid']
         # auto_gen = request.form['staffgen']
         first_name = request.form['firstname']
         last_name = request.form['lastname']
@@ -223,7 +223,7 @@ def staff_create():
 
 @app.route('/staff/delete/<id>/', methods=('POST',))
 def staff_delete(id):
-    staff = str(get_staff(id)).lower()
+    staff = str(get_staff(id))
     conn = get_db()
     conn.execute('DELETE FROM staffs WHERE id = ?', (staff,))
     conn.commit()
@@ -234,7 +234,7 @@ def staff_delete(id):
 @app.route('/staff/edit/<id>/', methods=('GET', 'POST'))
 def staff_edit(id):
     if request.method == 'POST':
-        staff_id = id.lower()
+        staff_id = id
         first_name = request.form['firstname']
         last_name = request.form['lastname']
         staff_title = request.form['title']
@@ -268,7 +268,7 @@ def checkout():
     if request.method == 'POST':
         asset_id = request.form['id'].lower()
         accessory_id = request.form['accessoryid']
-        staff_id = request.form['staffid'].lower()
+        staff_id = request.form['staffid']
         if not asset_id:
             flash('Asset ID is required')
         elif not staff_id:
