@@ -107,7 +107,7 @@ def index():
 @app.route('/create_asset', methods=('GET', 'POST'))
 def create_asset():
     if request.method == 'POST':
-        id = request.form['id']
+        id = request.form['id'].lower()
         asset_type = request.form['asset_type']
         asset_status = request.form['asset_status']
 
@@ -175,7 +175,7 @@ def staff_create():
     staff_dept = "--"
     if request.method == 'POST':
         conn = get_db()
-        staff_id = request.form['staffid']
+        staff_id = request.form['staffid'].lower()
         # auto_gen = request.form['staffgen']
         first_name = request.form['firstname']
         last_name = request.form['lastname']
@@ -223,7 +223,7 @@ def staff_create():
 
 @app.route('/staff/delete/<id>/', methods=('POST',))
 def staff_delete(id):
-    staff = get_staff(id)
+    staff = str(get_staff(id)).lower()
     conn = get_db()
     conn.execute('DELETE FROM staffs WHERE id = ?', (staff,))
     conn.commit()
@@ -234,7 +234,7 @@ def staff_delete(id):
 @app.route('/staff/edit/<id>/', methods=('GET', 'POST'))
 def staff_edit(id):
     if request.method == 'POST':
-        staff_id = id
+        staff_id = id.lower()
         first_name = request.form['firstname']
         last_name = request.form['lastname']
         staff_title = request.form['title']
@@ -266,9 +266,9 @@ def staff():
 @app.route('/checkout', methods=('GET', 'POST'))
 def checkout():
     if request.method == 'POST':
-        asset_id = request.form['id']
+        asset_id = request.form['id'].lower()
         accessory_id = request.form['accessoryid']
-        staff_id = request.form['staffid']
+        staff_id = request.form['staffid'].lower()
         if not asset_id:
             flash('Asset ID is required')
         elif not staff_id:
@@ -321,7 +321,7 @@ def checkout():
 @app.route('/checkin', methods=('GET', 'POST'))
 def checkin():
     if request.method == 'POST':
-        asset_id = request.form['id']
+        asset_id = request.form['id'].lower()
         if not asset_id:
             flash('Asset ID is required')
         elif get_asset(asset_id, "edit") is False:
@@ -445,7 +445,7 @@ def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
             conn.execute(
                 'INSERT INTO assets (id, asset_type, asset_status)'
                 'VALUES(?,?,?)',
-                (row[asset_id], row[asset_type], asset_status)
+                (str(row[asset_id]).lower(), row[asset_type], asset_status)
             )
             conn.commit()
         except sqlite3.IntegrityError:
