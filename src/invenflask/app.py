@@ -112,9 +112,9 @@ def create_asset():
         asset_status = request.form['asset_status']
 
         if not id:
-            flash('Asset ID is required')
+            flash('Asset ID is required', 'warning')
         elif not asset_type:
-            flash('Asset Type required')
+            flash('Asset Type required', 'warning')
         else:
             try:
                 conn = get_db()
@@ -125,7 +125,7 @@ def create_asset():
                 conn.commit()
                 return redirect(url_for('status'))
             except sqlite3.IntegrityError:
-                flash("Asset already exists")
+                flash("Asset already exists", 'warning')
                 return redirect(url_for('create_asset'))
 
     return render_template('create_asset.html')
@@ -165,7 +165,7 @@ def delete(id):
     conn = get_db()
     conn.execute('DELETE FROM assets WHERE id = ?', (asset,))
     conn.commit()
-    flash('Asset "{}" was successfully deleted!'.format(id))
+    flash('Asset "{}" was successfully deleted!'.format(id), "success")
     return redirect(url_for('index'))
 
 
@@ -186,14 +186,14 @@ def staff_create():
             staff_dept = request.form['department']
 
         if not staff_id:
-            flash('Staff ID or Auto Generate is required')
+            flash('Staff ID or Auto Generate is required', "warning")
         elif not first_name or not last_name:
-            flash('Missing Name information')
+            flash('Missing Name information', "warning")
         elif not staff_title:
-            flash('Missing Staff Title')
+            flash('Missing Staff Title', "warning")
         elif get_staff(staff_id):
             if get_staff(staff_id) == staff_id:
-                flash('Staff ID already exists. Try again.')
+                flash('Staff ID already exists. Try again.', "warning")
         else:
             # if auto_gen == 'on':
             #     last_staff = conn.execute(
@@ -215,7 +215,7 @@ def staff_create():
                 conn.commit()
                 return redirect(url_for('staff'))
             except sqlite3.IntegrityError:
-                flash("Staff already exists")
+                flash("Staff already exists", "warning")
                 return redirect(url_for('staff_create'))
 
     return render_template('staff_create.html', load_checkout="onload='FocusOnLoad()'")
@@ -227,7 +227,7 @@ def staff_delete(id):
     conn = get_db()
     conn.execute('DELETE FROM staffs WHERE id = ?', (staff,))
     conn.commit()
-    flash('Staff "{}" was successfully deleted!'.format(id))
+    flash('Staff "{}" was successfully deleted!'.format(id), "success")
     return redirect(url_for('staff'))
 
 
@@ -270,23 +270,24 @@ def checkout():
         accessory_id = request.form['accessoryid']
         staff_id = request.form['staffid']
         if not asset_id:
-            flash('Asset ID is required')
+            flash('Asset ID is required', 'warning')
         elif not staff_id:
-            flash('Staff ID required')
+            flash('Staff ID required', 'warning')
         elif not get_staff(staff_id):
-            flash('Staff does not exist')
+            flash('Staff does not exist', 'danger')
             # return render_template_modal('staff_create.html', staffid=staff_id)
             return render_template('staff_create.html', staffid=staff_id, load_checkout="onload='FocusOnLoad()'")
         elif get_asset(asset_id, 'edit') is False:
-            flash("Asset does not exist. Please make it below")
+            flash("Asset does not exist. Please make it below", "warning")
             return redirect(url_for('create_asset'))
         elif get_asset(asset_id, 'edit') is dict:
             if get_asset(asset_id, 'edit')['asset_status'] == 'damaged':
-                flash("Asset should not be checked out. Please choose another one")
+                flash(
+                    "Asset should not be checked out. Please choose another one", "danger")
                 return redirect(url_for('checkout'))
             else:
                 flash(
-                    f"Something went wrong with {get_asset(asset_id, 'edit')}")
+                    f"Something went wrong with {get_asset(asset_id, 'edit')}", "danger")
         else:
             staff_dept = get_staff(staff_id)['Department']
             # flash(get_asset(asset_id, 'edit'))
@@ -308,12 +309,12 @@ def checkout():
                         (accessory_id,))
 
                 conn.commit()
-                flash('Asset Checkout Completed')
+                flash('Asset Checkout Completed', "success")
                 return redirect(url_for('checkout'))
             except sqlite3.IntegrityError:
                 flash(
                     "Asset already checked out! Please check-in "
-                    "before checking out")
+                    "before checking out", "warning")
                 return redirect(url_for('checkout'))
     return render_template('checkout.html', load_checkout="onload='FocusOnLoad()'")
 
@@ -323,12 +324,12 @@ def checkin():
     if request.method == 'POST':
         asset_id = request.form['id'].lower()
         if not asset_id:
-            flash('Asset ID is required')
+            flash('Asset ID is required', "warning")
         elif get_asset(asset_id, "edit") is False:
-            flash("Asset does not exist. Please Try again")
+            flash("Asset does not exist. Please Try again", "warning")
             return redirect(url_for('checkin'))
         elif get_checkout(asset_id) is None:
-            flash("Asset Not checked out")
+            flash("Asset Not checked out", "warning")
             return redirect(url_for('checkin'))
         else:
             asset_checkout = get_checkout(asset_id)
@@ -354,10 +355,10 @@ def checkin():
                         ('Available', asset_id,))
                     print(f'Checkin {asset_id} as Available')
                 conn.commit()
-                flash('Asset checkin Completed')
+                flash('Asset checkin Completed', "success")
                 return redirect(url_for('checkin'))
             except sqlite3.IntegrityError as e:
-                flash(f"{e}")
+                flash(f"{e}", "danger")
                 return redirect(url_for('checkin'))
     return render_template('checkin.html')
 
@@ -449,7 +450,7 @@ def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
             )
             conn.commit()
         except sqlite3.IntegrityError:
-            flash("Asset upload failed import")
+            flash("Asset upload failed import", "danger")
             return redirect(url_for('create_asset'))
     return redirect(url_for('status'))
 
@@ -470,7 +471,7 @@ def parseCSV_staff(
                  row[division], row[department], row[title]))
             conn.commit()
         except sqlite3.IntegrityError:
-            flash("Asset upload failed import")
+            flash("Asset upload failed import", "danger")
             return redirect(url_for('create_asset'))
     return redirect(url_for('status'))
 
