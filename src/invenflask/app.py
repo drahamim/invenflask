@@ -267,7 +267,7 @@ def staff():
 def checkout():
     if request.method == 'POST':
         asset_id = request.form['id'].lower()
-        accessory_id = request.form['accessoryid']
+        accessory_id = request.form['accessoryid'].lower()
         staff_id = request.form['staffid']
         if not asset_id:
             flash('Asset ID is required', 'warning')
