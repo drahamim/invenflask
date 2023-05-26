@@ -126,9 +126,10 @@
       <td>{{ item.checkouttime }}</td>
       <td>{{ item.returntime }}</td>
     </tr>
+    {% endfor %}
   </tbody>
 </table>
-{% endfor %}
+
 
 {% endif %}
 {{ data_var|safe }}
