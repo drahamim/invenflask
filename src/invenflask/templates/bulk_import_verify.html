@@ -26,7 +26,7 @@
                     <option value="{{ header }}">{{ header }}</option>
                 {% endfor %}
             </select>
-            <button type="submit">Import</button>
+            <button type="submit" class="btn btn-primary btn-lg">Import</button>
         </form>
     {% else %}
         <form method="POST">
@@ -71,7 +71,7 @@
                     <option value="{{ header }}">{{ header }}</option>
                 {% endfor %}
             </select>
-            <button type="submit">Import</button>
+            <button type="submit" class="btn btn-primary btn-lg">Import</button>
         </form>
     {% endif %}
     {{ data_var|safe }}
