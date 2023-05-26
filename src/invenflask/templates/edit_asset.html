@@ -14,13 +14,13 @@
             {% endfor %}
        </select>
        <br>
-       <label for="status">Asset Status</label>
+       <label for="status">Asset Status {{asset.asset_status}} </label>
        <br>
        <select id="asset_status" name="asset_status">
               <option value="Available">Available</option>
               <option value="Good">Good</option>
               <option value="Damaged">Damaged</option>
-              <option value="Checkedout">Checked Out</option>
+              <option value="checkedout">Checked Out</option>
        </select>
         <br>
         <button type="submit" class="btn btn-primary btn-lg">Submit</button>
