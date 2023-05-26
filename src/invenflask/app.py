@@ -165,7 +165,7 @@ def delete(id):
     conn = get_db()
     conn.execute('DELETE FROM assets WHERE id = ?', (asset,))
     conn.commit()
-    flash('Asset "{}" was successfully deleted!'.format(id),"success")
+    flash('Asset "{}" was successfully deleted!'.format(id), "success")
     return redirect(url_for('index'))
 
 
@@ -282,7 +282,8 @@ def checkout():
             return redirect(url_for('create_asset'))
         elif get_asset(asset_id, 'edit') is dict:
             if get_asset(asset_id, 'edit')['asset_status'] == 'damaged':
-                flash("Asset should not be checked out. Please choose another one", "danger")
+                flash(
+                    "Asset should not be checked out. Please choose another one", "danger")
                 return redirect(url_for('checkout'))
             else:
                 flash(
