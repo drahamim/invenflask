@@ -138,16 +138,21 @@ def edit_asset(id):
         asset_type = request.form['asset_type']
         asset_status = request.form['asset_status']
         conn = get_db()
+        old_record = get_asset(id, "edit")
+        if old_record['asset_status'].lower() != asset_status.lower():
+            if asset_status == 'checkedout':
+                flash('Manual checkeouts without staff ID not allowed', "warnin")
+                return redirect(url_for('checkout'))
         conn.execute('UPDATE assets SET asset_type = ?, asset_status = ?'
                      ' WHERE id = ?', (asset_type, asset_status, id))
         conn.commit()
+        flash("YOU WANKER")
         return redirect(url_for('status'))
     if request.method == 'GET':
         conn = get_db()
         asset = get_asset(id, "edit")
         asset_types = conn.execute(
             'Select DISTINCT(asset_type) from assets').fetchall()
-        print(asset_types)
         return render_template('edit_asset.html', asset=asset, asset_types=asset_types)
 
 
