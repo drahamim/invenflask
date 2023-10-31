@@ -146,7 +146,7 @@ def edit_asset(id):
         conn.execute('UPDATE assets SET asset_type = ?, asset_status = ?'
                      ' WHERE id = ?', (asset_type, asset_status, id))
         conn.commit()
-        flash("YOU WANKER")
+        # flash("YOU WANKER")
         return redirect(url_for('status'))
     if request.method == 'GET':
         conn = get_db()
