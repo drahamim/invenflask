@@ -74,5 +74,11 @@
     </div>
     {{ bootstrap.load_js() }}
 </body>
-
+<footer> 
+{% block footer %}
+   <div class="float-start">
+        <span class="badge bg-primary">AppVersion: {{ app_version }}</span>
+  </div>
+{% endblock %} 
+</footer>
 </html>
