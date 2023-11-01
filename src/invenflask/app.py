@@ -1,6 +1,7 @@
 import os
 import sqlite3
 from pathlib import Path
+from importlib.metadata import version
 
 import pandas as pd
 from flask import (Flask, flash, g, redirect, render_template, request,
@@ -23,6 +24,11 @@ print(config_path)
 bootstrap = Bootstrap5(app)
 modal = Modal(app)
 # print(app.config)
+
+
+@app.context_processor
+def get_version():
+    return dict(app_version=version("invenflask"))
 
 
 def get_db_connection():
