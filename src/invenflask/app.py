@@ -1,16 +1,18 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from sqlalchemy import create_engine, Table, MetaData, insert, select, update, delete
-from datetime import datetime
 import os
+from datetime import datetime
 from pathlib import Path
-from importlib.metadata import version
+
 import pandas as pd
+from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_bootstrap import Bootstrap5
-from werkzeug.utils import secure_filename
-from flask_modals import Modal
-from invenflask.models import Asset, Staff, Checkout, History, db
-from sqlalchemy import Table, MetaData, select, update, delete
 from flask_migrate import Migrate
+from importlib.metadata import version
+from sqlalchemy import Table, MetaData, select, update, delete, create_engine
+from sqlalchemy.sql import insert
+from werkzeug.utils import secure_filename
+
+from invenflask.models import Asset, Staff, Checkout, History, db
+from flask_modals import Modal
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
@@ -68,6 +70,8 @@ def asset_create():
                                   asset_type=asset_type)
                 db.session.add(new_asset)
                 db.session.commit()
+                flash(
+                    f'Asset "{asset_id}" was successfully created!', "success")
                 return redirect(url_for('assets'))
             except Exception as e:
                 app.logger.error(e)
@@ -83,12 +87,13 @@ def asset_edit(asset_id):
     asset = db.session.query(Asset).filter_by(id=asset_id).first()
 
     if request.method == 'POST':
-        asset_id = request.form['id']
+        asset_id = asset_id
         asset_type = request.form['asset_type']
         asset_status = request.form['asset_status']
 
-        db.session.update(assets).where(assets.c.id == asset_id).values(
-            asset_status=asset_status, asset_type=asset_type)
+        db.session.query(Asset).filter(Asset.id == asset_id).update(
+            values={Asset.asset_status: asset_status,
+                    Asset.asset_type: asset_type})
         db.session.commit()
         return redirect(url_for('assets'))
 
@@ -181,7 +186,7 @@ def checkout():
         if not db.session.query(Staff).filter_by(id=staff_id).scalar():
             flash('Staff does not exist', "warning")
             return render_template('checkout.html')
-        if not db.session.query(Asset).filter_by(id=accessory).scalar():
+        if not db.session.query(Asset).filter_by(id=accessory).scalar() and accessory != '':
             flash('Accessory does not exist', "warning")
             return render_template('checkout.html')
 
@@ -189,20 +194,29 @@ def checkout():
             flash('Staff and or Asset fields are required', "warning")
         else:
             try:
+                staffer = db.session.query(Staff).filter(
+                    Staff.id == staff_id).first()
+                app.logger.info(staffer)
                 db.session.add(Checkout(
-                    asset_id=asset_id, staff_id=staff_id, timestamp=datetime.now()))
-                db.session.update(Assets).where(assets.c.id == asset_id).values(
-                    status='checkedout')
+                    assetid=asset_id, staffid=staff_id,
+                    department=staffer.department,
+                    timestamp=datetime.now()))
+                db.session.query(Asset).filter(Asset.id == asset_id).update(values={
+                    'asset_status': 'checkedout'})
 
-                if accessory:
-                    db.session.add(Checkout(
-                        asset_id=accessory, staff_id=staff_id, timestamp=datetime.now()))
-                    db.session.update(Assets).where(assets.c.id == accessory).values(
-                        status='checkedout')
-                
+                # if accessory:
+                db.session.add(Checkout(
+                    assetid=accessory, staffid=staff_id,
+                    department=staffer.department,
+                    timestamp=datetime.now()))
+                db.session.query(Asset).filter(Asset.id == accessory).update(values={
+                    'asset_status': 'checkedout'})
+
                 db.session.commit()
-                return redirect(url_for('history'))
+                flash(f'Asset was successfully checked out!', "success")
+                return redirect(url_for('checkout'))
             except Exception as e:
+                app.logger.error(e)
                 flash("Checkout failed", 'warning')
                 return redirect(url_for('checkout'))
 
@@ -217,23 +231,27 @@ def return_asset():
         if not asset_id:
             flash('Asset ID is required', "warning")
         else:
-            asset_checkout_date = db.session.query(
-                Checkout.timestamp).filter(asset_id == asset_id).scalar()
-
             try:
-                db.session.update(History).where(history.c.asset_id == asset_id).values(
-                    asset_id=asset_id, staff_id=staff_id,
-                    checkouttime=asset_checkout_date, returntime=datetime.now()
-                )
-                db.session.delete(Checkout).where(
-                    checkouts.c.asset_id == asset_id)
+                checkout_info = db.session.query(Checkout).filter(
+                    Checkout.assetid == asset_id).first()
+                staffer = db.session.query(Staff).filter(
+                    Staff.id == checkout_info.staffid).first()
 
-                db.session.update(Assets).where(assets.c.id == asset_id).values(
-                    status='available')
+                db.session.add(History(
+                    assetid=asset_id, staffid=checkout_info.staffid,
+                    department=staffer.department, division=staffer.division,
+                    checkouttime=checkout_info.timestamp, returntime=datetime.now()
+                ))
+                db.session.query(Checkout).filter(
+                    Checkout.assetid == asset_id).delete()
+
+                db.session.query(Asset).filter(Asset.id == asset_id).update(values={
+                    'asset_status': 'Available'})
 
                 db.session.commit()
                 return redirect(url_for('history'))
             except Exception as e:
+                app.logger.error(e)
                 flash("Return failed", 'warning')
                 return redirect(url_for('return_asset'))
 
@@ -244,9 +262,14 @@ def return_asset():
 
 @ app.route('/history')
 def history():
-    history_list = db.session.query(History).all()
-
-    return render_template('history.html', history=history_list)
+    try:
+        history_list = db.session.query(History).all()
+        db.session.commit()
+    except Exception as e:
+        app.logger.error(e)
+        flash("History not found", 'warning')
+        return redirect(url_for('history'))
+    return render_template('history.html', assets=history_list)
 
 
 @ app.route('/assets')

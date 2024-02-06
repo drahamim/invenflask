@@ -49,5 +49,4 @@ class History(db.Model):
     department = Column(String, nullable=False)
     division = Column(String, nullable=False)
     checkouttime = Column(DateTime, nullable=False)
-    returntime = Column(DateTime, nullable=False,
-                        default=datetime.utcnow)
+    returntime = Column(DateTime, nullable=False)
