@@ -48,7 +48,9 @@ def index():
         'index.html', assets=assets, asset_total=asset_total,
         asset_type=asset_types, asset_status=asset_status, checkouts=checkouts)
 
-## ASSET ROUTES
+# ASSET ROUTES
+
+
 @app.route('/create/asset', methods=('GET', 'POST'))
 def asset_create():
     assets = db.session.query(Asset).all()
@@ -100,7 +102,9 @@ def asset_delete(asset_id):
     flash(f'Asset "{asset_id}" was successfully deleted!', "success")
     return redirect(url_for('assets'))
 
-## STAFF ROUTES
+# STAFF ROUTES
+
+
 @app.route('/create/staff', methods=('GET', 'POST'))
 def staff_create():
 
@@ -111,28 +115,22 @@ def staff_create():
         division = request.form['division']
         department = request.form['department']
         title = request.form['title']
-        
-        if not staff_id or not staff_name:
+
+        if not staff_id or not first_name:
             flash('All fields are required', "warning")
-            
+
         if db.session.query(Staff).filter_by(id=staff_id).scalar():
             flash('Staff already exists', "warning")
             return redirect(url_for('staff_create'))
         else:
             try:
-                db.session.execute(
-                    insert(staffs).values(
-                        id=staff_id, first_name=
-                    )
-                )
-                db_session.execute(
-                    insert(staffs).values(
-                        staff_id=staff_id, name=staff_name
-                    )
-                )
-                db_session.commit()
+                db.session.add(Staff(id=staff_id, first_name=first_name,
+                                     last_name=last_name, division=division,
+                                     department=department, title=title))
+                db.session.commit()
                 return redirect(url_for('staffs'))
             except Exception as e:
+                app.logger.error(e)
                 flash("Staff already exists", 'warning')
                 return redirect(url_for('staff_create'))
 
@@ -141,19 +139,18 @@ def staff_create():
 
 @app.route('/edit/staff/<staff_id>', methods=('GET', 'POST'))
 def staff_edit(staff_id):
-    staffs = Table('staffs', MetaData(bind=engine), autoload=True)
-    staff = db_session.execute(select(staffs).where(
-        staffs.c.staff_id == staff_id)).fetchone()
-
+    staff = db.session.query(Staff).filter_by(id=staff_id).first()
     if request.method == 'POST':
-        staff_name = request.form['staffname']
+        first_name = request.form['firstname']
+        last_name = request.form['lastname']
+        division = request.form['division']
+        department = request.form['department']
+        title = request.form['title']
 
-        db_session.execute(
-            update(staffs).where(staffs.c.staff_id == staff_id).values(
-                name=staff_name
-            )
+        db.session.update(staffs).where(staffs.c.staff_id == staff_id).values(
+            first_name=first_name, last_name=last_name, division=division, department=department, title=title
         )
-        db_session.commit()
+        db.session.commit()
         return redirect(url_for('staffs'))
 
     return render_template('staff_edit.html', staff=staff)
@@ -167,33 +164,43 @@ def staff_delete(staff_id):
     flash(f'Staff "{staff_id}" was successfully deleted!', "success")
     return redirect(url_for('staffs'))
 
-## ACTION ROUTES
+# ACTION ROUTES
+
+
 @app.route('/checkout', methods=('GET', 'POST'))
 def checkout():
 
     if request.method == 'POST':
-        asset_id = request.form['assetid']
+        asset_id = request.form['id']
         staff_id = request.form['staffid']
+        accessory = request.form['accessoryid']
 
         if not db.session.query(Asset).filter_by(id=asset_id).scalar():
             flash('Asset does not exist', "warning")
             return render_template('checkout.html')
-        
+        if not db.session.query(Staff).filter_by(id=staff_id).scalar():
+            flash('Staff does not exist', "warning")
+            return render_template('checkout.html')
+        if not db.session.query(Asset).filter_by(id=accessory).scalar():
+            flash('Accessory does not exist', "warning")
+            return render_template('checkout.html')
+
         if not asset_id or not staff_id:
-            flash('All fields are required', "warning")
+            flash('Staff and or Asset fields are required', "warning")
         else:
             try:
-                db_session.execute(
-                    insert(checkouts).values(
-                        asset_id=asset_id, staff_id=staff_id, checkout_date=datetime.now()
-                    )
-                )
-                db_session.execute(
-                    update(assets).where(assets.c.id == asset_id).values(
-                        status='checked out'
-                    )
-                )
-                db_session.commit()
+                db.session.add(Checkout(
+                    asset_id=asset_id, staff_id=staff_id, timestamp=datetime.now()))
+                db.session.update(Assets).where(assets.c.id == asset_id).values(
+                    status='checkedout')
+
+                if accessory:
+                    db.session.add(Checkout(
+                        asset_id=accessory, staff_id=staff_id, timestamp=datetime.now()))
+                    db.session.update(Assets).where(assets.c.id == accessory).values(
+                        status='checkedout')
+                
+                db.session.commit()
                 return redirect(url_for('history'))
             except Exception as e:
                 flash("Checkout failed", 'warning')
@@ -232,7 +239,9 @@ def return_asset():
 
     return render_template('return.html')
 
-## READ ROUTES
+# READ ROUTES
+
+
 @ app.route('/history')
 def history():
     history_list = db.session.query(History).all()
@@ -248,16 +257,9 @@ def assets():
 
 @ app.route('/staffs')
 def staffs():
-    staffs = Table('staffs', MetaData(bind=engine), autoload=True)
+    staff_list = db.session.query(Staff).all()
+    return render_template('staff.html', staffs=staff_list)
 
-    staff_list = db_session.execute(
-        select([
-            staffs.c.staff_id,
-            staffs.c.name
-        ])
-    ).fetchall()
-
-    return render_template('staffs.html', staffs=staff_list)
 
 @app.route('/single_history/<rq_type>/<item_id>')
 def single_history(rq_type, item_id):
@@ -275,8 +277,7 @@ def single_history(rq_type, item_id):
                            )
 
 
-
-## IMPORT TASKS
+# IMPORT TASKS
 @ app.route('/bulk_import', methods=('GET', 'POST'))
 def bulk_import():
     if request.method == 'POST':
@@ -364,7 +365,6 @@ def parseCSV_staff(filePath, first_name, last_name, staff_id, division, departme
             flash("Staff upload failed import", "danger")
             return redirect(url_for('create_asset'))
     return redirect(url_for('status'))
-
 
 
 if __name__ == '__main__':

@@ -34,8 +34,7 @@ class Checkout(db.Model):
     assetid = Column(String, nullable=False, primary_key=True)
     staffid = Column(String, nullable=False)
     department = Column(String, nullable=False)
-    checkouttime = Column(DateTime, nullable=False,
-                       default=datetime.utcnow)
+    timestamp = Column(DateTime, nullable=False)
 
     __table_args__ = (
         UniqueConstraint('assetid', name='check_a_id'),
