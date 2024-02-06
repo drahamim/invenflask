@@ -17,7 +17,7 @@
           <td>{{ asset.id }}</td>
           <td>{{ asset.asset_type }}</td>
           <td>{{ asset.asset_status }}</td>
-          <td><button type="button" onclick="document.location.href='/{{asset.id}}/edit/'">Edit</button>
+          <td><button type="button" onclick=location.href="{{ url_for('asset_edit', asset_id=asset.id) }}">Edit</button>
           </td>
           <td><button type="button" onclick="document.location.href='/single_history/asset/{{asset.id}}'">History</button>
           </td>
