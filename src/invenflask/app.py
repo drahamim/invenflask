@@ -160,14 +160,14 @@ def staff_edit(staff_id):
 
     return render_template('staff_edit.html', staff=staff)
 
-
-@app.route('/delete/staff/<staff_id>', methods=('POST',))
-def staff_delete(staff_id):
-    staffs = Table('staffs', MetaData(bind=engine), autoload=True)
-    db_session.execute(delete(staffs).where(staffs.c.staff_id == staff_id))
-    db_session.commit()
-    flash(f'Staff "{staff_id}" was successfully deleted!', "success")
-    return redirect(url_for('staffs'))
+# Disable Staff Delete function
+# @app.route('/delete/staff/<staff_id>', methods=('POST',))
+# def staff_delete(staff_id):
+#     staffs = Table('staffs', MetaData(bind=engine), autoload=True)
+#     db_session.execute(delete(staffs).where(staffs.c.staff_id == staff_id))
+#     db_session.commit()
+#     flash(f'Staff "{staff_id}" was successfully deleted!', "success")
+#     return redirect(url_for('staffs'))
 
 # ACTION ROUTES
 
