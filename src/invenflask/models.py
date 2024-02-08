@@ -1,6 +1,5 @@
-from sqlalchemy import Column, String, Text, Integer, DateTime, UniqueConstraint
+from sqlalchemy import Column, String, Integer, DateTime, UniqueConstraint
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 
 db = SQLAlchemy()
 

@@ -1,16 +1,12 @@
 import os
 from datetime import datetime
-from pathlib import Path
 
 import pandas as pd
 from flask import Flask, flash, redirect, render_template, request, url_for, session
 from flask_bootstrap import Bootstrap5
 from flask_migrate import Migrate
-from flask_modals import Modal
 from importlib.metadata import version
-from sqlalchemy import Table, MetaData, select, update, delete, create_engine
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql import insert
 from werkzeug.utils import secure_filename
 
 from invenflask.models import Asset, Staff, Checkout, History, db
@@ -66,6 +62,9 @@ def asset_create():
 
         if not asset_id or not asset_status or not asset_type:
             flash('All fields are required', "warning")
+        if asset_id in assets:
+            flash('Asset already exists', "warning")
+            return redirect(url_for('asset_create'))
         else:
             try:
                 new_asset = Asset(id=asset_id, asset_status=asset_status,
@@ -77,7 +76,7 @@ def asset_create():
                 return redirect(url_for('assets'))
             except Exception as e:
                 app.logger.error(e)
-                flash("Asset already exists", 'warning')
+                flash("Asset creation failed", 'warning')
                 return redirect(url_for('asset_create'))
 
     return render_template('asset_create.html')
@@ -85,7 +84,6 @@ def asset_create():
 
 @app.route('/edit/asset/<asset_id>', methods=('GET', 'POST'))
 def asset_edit(asset_id):
-    assets = db.session.query(Asset).all()
     asset = db.session.query(Asset).filter_by(id=asset_id).first()
 
     if request.method == 'POST':
@@ -215,7 +213,7 @@ def checkout():
                     'asset_status': 'checkedout'})
 
                 db.session.commit()
-                flash(f'Asset was successfully checked out!', "success")
+                flash('Asset was successfully checked out!', "success")
                 return redirect(url_for('checkout'))
             except Exception as e:
                 app.logger.error(e)
@@ -385,7 +383,7 @@ def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, 
     for i, row in csvData.iterrows():
         try:
             last_name = row[last_name] if last_name else ""
-            dvision = row[division] if division else ""
+            division = row[division] if division else ""
             title = row[title] if title else ""
 
             staff = Staff(id=row[staff_id], first_name=row[first_name], last_name=last_name,
@@ -397,7 +395,3 @@ def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, 
                 "Staff upload failed import. This may be due to ID conflicts.", "danger")
             return redirect(url_for('staff_create'))
     return redirect(url_for('staffs'))
-
-
-if __name__ == '__main__':
-    app.run(host=config.HOST, port=config.PORT, debug=True)
