@@ -3,16 +3,17 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, url_for, session
 from flask_bootstrap import Bootstrap5
 from flask_migrate import Migrate
+from flask_modals import Modal
 from importlib.metadata import version
 from sqlalchemy import Table, MetaData, select, update, delete, create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import insert
 from werkzeug.utils import secure_filename
 
 from invenflask.models import Asset, Staff, Checkout, History, db
-from flask_modals import Modal
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
@@ -22,6 +23,7 @@ bootstrap = Bootstrap5(app)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SECRET_KEY'] = os.urandom(24)
 migrate = Migrate(app, db)
+app.config['upload_folder'] = 'uploads'
 
 
 with app.app_context():
@@ -344,7 +346,7 @@ def showData():
             parseCSV_assets(
                 data_file_path, asset_id_field,
                 asset_type_field, asset_status_field)
-            return redirect(url_for('status'))
+            return redirect(url_for('assets'))
         elif form_type == 'staff':
             first_name = request.form['first_name']
             last_name = request.form['last_name']
@@ -356,7 +358,7 @@ def showData():
                 data_file_path, first_name, last_name, staff_id,
                 division, department, title)
 
-            return redirect(url_for('staff'))
+            return redirect(url_for('staffs'))
 
 
 def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
@@ -370,24 +372,31 @@ def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
             ), asset_type=row[asset_type], asset_status=asset_status)
             db.session.add(asset)
             db.session.commit()
-        except IntegrityError:
-            flash("Asset upload failed import", "danger")
-            return redirect(url_for('create_asset'))
+        except IntegrityError as e:
+            app.logger.error(e)
+            flash(
+                "Asset upload failed import. This mabe be due to ID conflicts", "danger")
+            return redirect(url_for('asset_create'))
     return redirect(url_for('status'))
 
 
-def parseCSV_staff(filePath, first_name, last_name, staff_id, division, department, title):
+def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, division=False, department=False, title=False):
     csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
     for i, row in csvData.iterrows():
         try:
-            staff = Staff(id=row[staff_id], first_name=row[first_name], last_name=row[last_name],
-                          division=row[division], department=row[department], title=row[title])
+            last_name = row[last_name] if last_name else ""
+            dvision = row[division] if division else ""
+            title = row[title] if title else ""
+
+            staff = Staff(id=row[staff_id], first_name=row[first_name], last_name=last_name,
+                          division=division, department=row[department], title=title)
             db.session.add(staff)
             db.session.commit()
         except IntegrityError:
-            flash("Staff upload failed import", "danger")
-            return redirect(url_for('create_asset'))
-    return redirect(url_for('status'))
+            flash(
+                "Staff upload failed import. This may be due to ID conflicts.", "danger")
+            return redirect(url_for('staff_create'))
+    return redirect(url_for('staffs'))
 
 
 if __name__ == '__main__':
