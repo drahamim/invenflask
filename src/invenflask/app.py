@@ -1,29 +1,29 @@
 import os
-import sqlite3
-from pathlib import Path
-from importlib.metadata import version
+from datetime import datetime
 
 import pandas as pd
-from flask import (Flask, flash, g, redirect, render_template, request,
-                   session, url_for)
+from flask import Flask, flash, redirect, render_template, request, url_for, session
 from flask_bootstrap import Bootstrap5
+from flask_migrate import Migrate
+from importlib.metadata import version
+from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
-from flask_modals import Modal
 
-
-config_path = Path.cwd().joinpath('config.py')
-
-upload_folder = os.path.join('static', 'uploads')
-allowed_ext = {'csv'}
+from invenflask.models import Asset, Staff, Checkout, History, db
 
 app = Flask(__name__)
-app.config.from_pyfile(config_path)
-app.config['upload_folder'] = upload_folder
-os.makedirs(app.config['upload_folder'], exist_ok=True)
-print(config_path)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URI', 'sqlite:////tmp/test.db')
+db.init_app(app)
 bootstrap = Bootstrap5(app)
-modal = Modal(app)
-# print(app.config)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SECRET_KEY'] = os.urandom(24)
+migrate = Migrate(app, db)
+app.config['upload_folder'] = 'uploads'
+
+
+with app.app_context():
+    db.create_all(app=app)
 
 
 @app.context_processor
@@ -31,358 +31,277 @@ def get_version():
     return dict(app_version=version("invenflask"))
 
 
-def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-def get_db():
-    """Opens a new database connection if there is none yet for the
-    current application context.
-    """
-    if not hasattr(g, 'sqlite_db'):
-        g.sqlite_db = get_db_connection()
-    return g.sqlite_db
-
-
-@app.teardown_appcontext
-def close_db(error):
-    """Closes the database again at the end of the request."""
-    if hasattr(g, 'sqlite_db'):
-        g.sqlite_db.close()
-
-
-def get_asset(asset_id, action):
-    conn = get_db()
-    asset = conn.execute('SELECT * FROM assets WHERE id = ?',
-                         (asset_id,)).fetchone()
-    conn.commit()
-    if action == "edit":
-        if asset is None:
-            return False
-        else:
-            print(asset)
-            return asset
-    if action == "create":
-        if asset:
-            return False
-    return asset
-
-
-def get_staff(staff_id):
-    conn = get_db()
-    staff = conn.execute('SELECT * FROM staffs WHERE id = ?',
-                         (staff_id,)).fetchone()
-    conn.commit()
-    print(f'Get Staff {staff}')
-    if not staff:
-        return False
-    return staff
-
-
-def get_checkout(asset_id):
-    conn = get_db()
-    asset = conn.execute('SELECT * FROM checkouts WHERE assetid = ?',
-                         (asset_id,)).fetchone()
-    conn.commit()
-    return asset
-
-
 @app.route('/')
 def index():
-
-    conn = get_db()
-    assets = conn.execute('SELECT * FROM assets').fetchall()
-    asset_total = conn.execute('SELECT COUNT(*) FROM assets').fetchone()[0]
-    asset_types = conn.execute(
-        'SELECT asset_type, COUNT(*) FROM assets GROUP BY asset_type'
-    ).fetchall()
-    asset_status = conn.execute(
-        "SELECT asset_type, COUNT() AS TotalCount,"
-        "SUM(asset_status = 'checkedout') AS AvailCount from assets GROUP BY asset_type;"
-    ).fetchall()
-    checkouts = conn.execute(
-        "select * from checkouts").fetchall()
-    conn.commit()
+    assets = db.session.query(Asset).all()
+    asset_total = db.session.query(Asset).count()
+    asset_types = db.session.query(
+        Asset.asset_type, db.func.count()).group_by(Asset.asset_type).all()
+    asset_status = db.session.query(
+        Asset.asset_type,
+        db.func.count().label('TotalCount'),
+        db.func.sum(db.case((Asset.asset_status == 'checkedout', 1), else_=0)).label(
+            'AvailCount')
+    ).group_by(Asset.asset_type).all()
+    checkouts = db.session.query(Checkout).all()
     return render_template(
         'index.html', assets=assets, asset_total=asset_total,
         asset_type=asset_types, asset_status=asset_status, checkouts=checkouts)
 
+# ASSET ROUTES
 
-@app.route('/create_asset', methods=('GET', 'POST'))
-def create_asset():
+
+@app.route('/create/asset', methods=('GET', 'POST'))
+def asset_create():
+    assets = db.session.query(Asset).all()
+
     if request.method == 'POST':
-        id = request.form['id'].lower()
+        asset_id = request.form['id']
         asset_type = request.form['asset_type']
         asset_status = request.form['asset_status']
 
-        if not id:
-            flash('Asset ID is required', 'warning')
-        elif not asset_type:
-            flash('Asset Type required', 'warning')
+        if not asset_id or not asset_status or not asset_type:
+            flash('All fields are required', "warning")
+        if asset_id in assets:
+            flash('Asset already exists', "warning")
+            return redirect(url_for('asset_create'))
         else:
             try:
-                conn = get_db()
-                conn.execute(
-                    'INSERT INTO assets (id, asset_type, asset_status)'
-                    'VALUES (?, ?, ?)',
-                    (id, asset_type, asset_status))
-                conn.commit()
-                return redirect(url_for('status'))
-            except sqlite3.IntegrityError:
-                flash("Asset already exists", 'warning')
-                return redirect(url_for('create_asset'))
+                new_asset = Asset(id=asset_id, asset_status=asset_status,
+                                  asset_type=asset_type)
+                db.session.add(new_asset)
+                db.session.commit()
+                flash(
+                    f'Asset "{asset_id}" was successfully created!', "success")
+                return redirect(url_for('assets'))
+            except Exception as e:
+                app.logger.error(e)
+                flash("Asset creation failed", 'warning')
+                return redirect(url_for('asset_create'))
 
-    return render_template('create_asset.html')
+    return render_template('asset_create.html')
 
 
-@app.route('/<id>/edit/', methods=('GET', 'POST'))
-def edit_asset(id):
+@app.route('/edit/asset/<asset_id>', methods=('GET', 'POST'))
+def asset_edit(asset_id):
+    asset = db.session.query(Asset).filter_by(id=asset_id).first()
 
     if request.method == 'POST':
+        asset_id = asset_id
         asset_type = request.form['asset_type']
         asset_status = request.form['asset_status']
-        conn = get_db()
-        old_record = get_asset(id, "edit")
-        if old_record['asset_status'].lower() != asset_status.lower():
-            if asset_status == 'checkedout':
-                flash('Manual checkeouts without staff ID not allowed', "warnin")
-                return redirect(url_for('checkout'))
-        conn.execute('UPDATE assets SET asset_type = ?, asset_status = ?'
-                     ' WHERE id = ?', (asset_type, asset_status, id))
-        conn.commit()
-        # flash("YOU WANKER")
-        return redirect(url_for('status'))
-    if request.method == 'GET':
-        conn = get_db()
-        asset = get_asset(id, "edit")
-        asset_types = conn.execute(
-            'Select DISTINCT(asset_type) from assets').fetchall()
-        return render_template('edit_asset.html', asset=asset, asset_types=asset_types)
+
+        db.session.query(Asset).filter(Asset.id == asset_id).update(
+            values={Asset.asset_status: asset_status,
+                    Asset.asset_type: asset_type})
+        db.session.commit()
+        return redirect(url_for('assets'))
+
+    return render_template('asset_edit.html', asset=asset)
 
 
-@app.route('/status')
-def status():
-    conn = get_db()
-    assets = conn.execute('SELECT * FROM assets').fetchall()
-    conn.commit()
-    return render_template('status.html', assets=assets)
+@app.route('/delete/asset/<asset_id>', methods=('POST',))
+def asset_delete(asset_id):
+    db.session.delete(Asset.query.get(asset_id))
+    db.session.commit()
+    flash(f'Asset "{asset_id}" was successfully deleted!', "success")
+    return redirect(url_for('assets'))
+
+# STAFF ROUTES
 
 
-@app.route('/delete/<id>', methods=('POST',))
-def delete(id):
-    asset = get_asset(id, "edit")
-    conn = get_db()
-    conn.execute('DELETE FROM assets WHERE id = ?', (asset,))
-    conn.commit()
-    flash('Asset "{}" was successfully deleted!'.format(id), "success")
-    return redirect(url_for('index'))
-
-
-@app.route('/staff/create', methods=('GET', 'POST'))
+@app.route('/create/staff', methods=('GET', 'POST'))
 def staff_create():
-    staff_div = "--"
-    staff_dept = "--"
+
     if request.method == 'POST':
-        conn = get_db()
         staff_id = request.form['staffid']
-        # auto_gen = request.form['staffgen']
         first_name = request.form['firstname']
         last_name = request.form['lastname']
-        staff_title = request.form['title']
-        if request.form['division']:
-            staff_div = request.form['division']
-        if request.form['department']:
-            staff_dept = request.form['department']
+        division = request.form['division']
+        department = request.form['department']
+        title = request.form['title']
 
-        if not staff_id:
-            flash('Staff ID or Auto Generate is required', "warning")
-        elif not first_name or not last_name:
-            flash('Missing Name information', "warning")
-        elif not staff_title:
-            flash('Missing Staff Title', "warning")
-        elif get_staff(staff_id):
-            if get_staff(staff_id) == staff_id:
-                flash('Staff ID already exists. Try again.', "warning")
+        if not staff_id or not first_name:
+            flash('All fields are required', "warning")
+
+        if db.session.query(Staff).filter_by(id=staff_id).scalar():
+            flash('Staff already exists', "warning")
+            return redirect(url_for('staff_create'))
         else:
-            # if auto_gen == 'on':
-            #     last_staff = conn.execute(
-            #         'SELECT id FROM staffs order by length(id) desc, id desc limit 1'
-            #     ).fetchone()['id']
-            #     conn.commit()
-            #     print(re.split("(\d+)", last_staff))
-            #     next_staff_id = int(re.split("(\d+)", last_staff)[1]) + 1
-            #     print(next_staff_id)
-            #     staff_id =  "SE" + str(next_staff_id)
-            #     print(staff_id)
             try:
-                conn = get_db()
-                conn.execute(
-                    'INSERT INTO staffs (id, first_name, last_name, division, department, title)'
-                    'VALUES(?,?,?,?,?,?)',
-                    (staff_id, first_name, last_name,
-                     staff_div, staff_dept, staff_title))
-                conn.commit()
-                return redirect(url_for('staff'))
-            except sqlite3.IntegrityError:
-                flash("Staff already exists", "warning")
+                db.session.add(Staff(id=staff_id, first_name=first_name,
+                                     last_name=last_name, division=division,
+                                     department=department, title=title))
+                db.session.commit()
+                return redirect(url_for('staffs'))
+            except Exception as e:
+                app.logger.error(e)
+                flash("Staff already exists", 'warning')
                 return redirect(url_for('staff_create'))
 
-    return render_template('staff_create.html', load_checkout="onload='FocusOnLoad()'")
+    return render_template('staff_create.html')
 
 
-@app.route('/staff/delete/<id>/', methods=('POST',))
-def staff_delete(id):
-    staff = str(get_staff(id))
-    conn = get_db()
-    conn.execute('DELETE FROM staffs WHERE id = ?', (staff,))
-    conn.commit()
-    flash('Staff "{}" was successfully deleted!'.format(id), "success")
-    return redirect(url_for('staff'))
-
-
-@app.route('/staff/edit/<id>/', methods=('GET', 'POST'))
-def staff_edit(id):
+@app.route('/edit/staff/<staff_id>', methods=('GET', 'POST'))
+def staff_edit(staff_id):
+    staff = db.session.query(Staff).filter_by(id=staff_id).first()
     if request.method == 'POST':
-        staff_id = id
         first_name = request.form['firstname']
         last_name = request.form['lastname']
-        staff_title = request.form['title']
-        staff_div = request.form['division']
-        staff_dept = request.form['department']
+        division = request.form['division']
+        department = request.form['department']
+        title = request.form['title']
 
-        conn = get_db()
-        conn.execute(
-            'UPDATE staffs SET first_name = ?, last_name = ?, division = ?, department = ?, title = ? where id = ?',
-            (first_name, last_name, staff_div, staff_dept, staff_title, staff_id))
-        conn.commit()
-        return redirect(url_for('staff'))
-    if request.method == 'GET':
-        conn = get_db()
-        staff = get_staff(id)
-        return render_template('staff_edit.html', staff=staff)
+        db.session.update(staffs).where(staffs.c.staff_id == staff_id).values(
+            first_name=first_name, last_name=last_name, division=division, department=department, title=title
+        )
+        db.session.commit()
+        return redirect(url_for('staffs'))
 
+    return render_template('staff_edit.html', staff=staff)
 
-@app.route('/staff/', methods=('GET', 'POST'))
-def staff():
-    conn = get_db()
-    if request.method == 'POST':
-        pass
-    staff = conn.execute('SELECT * FROM staffs').fetchall()
-    conn.commit()
-    return render_template('staff.html', staffs=staff)
+# Disable Staff Delete function
+# @app.route('/delete/staff/<staff_id>', methods=('POST',))
+# def staff_delete(staff_id):
+#     staffs = Table('staffs', MetaData(bind=engine), autoload=True)
+#     db_session.execute(delete(staffs).where(staffs.c.staff_id == staff_id))
+#     db_session.commit()
+#     flash(f'Staff "{staff_id}" was successfully deleted!', "success")
+#     return redirect(url_for('staffs'))
+
+# ACTION ROUTES
 
 
 @app.route('/checkout', methods=('GET', 'POST'))
 def checkout():
+
     if request.method == 'POST':
-        asset_id = request.form['id'].lower()
-        accessory_id = request.form['accessoryid'].lower()
+        asset_id = request.form['id']
         staff_id = request.form['staffid']
-        if not asset_id:
-            flash('Asset ID is required', 'warning')
-        elif not staff_id:
-            flash('Staff ID required', 'warning')
-        elif not get_staff(staff_id):
-            flash('Staff does not exist', 'danger')
-            # return render_template_modal('staff_create.html', staffid=staff_id)
-            return render_template('staff_create.html', staffid=staff_id, load_checkout="onload='FocusOnLoad()'")
-        elif get_asset(asset_id, 'edit') is False:
-            flash("Asset does not exist. Please make it below", "warning")
-            return redirect(url_for('create_asset'))
-        elif get_asset(asset_id, 'edit') is dict:
-            if get_asset(asset_id, 'edit')['asset_status'] == 'damaged':
-                flash(
-                    "Asset should not be checked out. Please choose another one", "danger")
-                return redirect(url_for('checkout'))
-            else:
-                flash(
-                    f"Something went wrong with {get_asset(asset_id, 'edit')}", "danger")
+        accessory = request.form['accessoryid']
+
+        if not db.session.query(Asset).filter_by(id=asset_id).scalar():
+            flash('Asset does not exist', "warning")
+            return render_template('checkout.html')
+        if not db.session.query(Staff).filter_by(id=staff_id).scalar():
+            flash('Staff does not exist', "warning")
+            return render_template('checkout.html')
+        if not db.session.query(Asset).filter_by(id=accessory).scalar() and accessory != '':
+            flash('Accessory does not exist', "warning")
+            return render_template('checkout.html')
+
+        if not asset_id or not staff_id:
+            flash('Staff and or Asset fields are required', "warning")
         else:
-            staff_dept = get_staff(staff_id)['Department']
-            # flash(get_asset(asset_id, 'edit'))
             try:
-                conn = get_db()
-                conn.execute(
-                    'INSERT INTO checkouts (assetid, staffid, department) '
-                    'VALUES (?, ?, ?)', (asset_id, staff_id, staff_dept))
-                conn.execute('UPDATE assets SET asset_status = "checkedout" '
-                             'WHERE id = ?', (asset_id,))
-                if accessory_id:
-                    conn.execute(
-                        'INSERT INTO checkouts (assetid, staffid, department)'
-                        ' VALUES (?, ?, ?)',
-                        (accessory_id, staff_id, staff_dept))
-                    conn.execute(
-                        'UPDATE assets SET asset_status = "checkedout" '
-                        'WHERE id = ?',
-                        (accessory_id,))
+                staffer = db.session.query(Staff).filter(
+                    Staff.id == staff_id).first()
+                app.logger.info(staffer)
+                db.session.add(Checkout(
+                    assetid=asset_id, staffid=staff_id,
+                    department=staffer.department,
+                    timestamp=datetime.now()))
+                db.session.query(Asset).filter(Asset.id == asset_id).update(values={
+                    'asset_status': 'checkedout'})
 
-                conn.commit()
-                flash('Asset Checkout Completed', "success")
+                # if accessory:
+                db.session.add(Checkout(
+                    assetid=accessory, staffid=staff_id,
+                    department=staffer.department,
+                    timestamp=datetime.now()))
+                db.session.query(Asset).filter(Asset.id == accessory).update(values={
+                    'asset_status': 'checkedout'})
+
+                db.session.commit()
+                flash('Asset was successfully checked out!', "success")
                 return redirect(url_for('checkout'))
-            except sqlite3.IntegrityError:
-                flash(
-                    "Asset already checked out! Please check-in "
-                    "before checking out", "warning")
+            except Exception as e:
+                app.logger.error(e)
+                flash("Checkout failed", 'warning')
                 return redirect(url_for('checkout'))
-    return render_template('checkout.html', load_checkout="onload='FocusOnLoad()'")
+
+    return render_template('checkout.html')
 
 
-@app.route('/checkin', methods=('GET', 'POST'))
-def checkin():
+@app.route('/return_asset', methods=('GET', 'POST'))
+def return_asset():
     if request.method == 'POST':
-        asset_id = request.form['id'].lower()
+        asset_id = request.form['id']
+
         if not asset_id:
             flash('Asset ID is required', "warning")
-        elif get_asset(asset_id, "edit") is False:
-            flash("Asset does not exist. Please Try again", "warning")
-            return redirect(url_for('checkin'))
-        elif get_checkout(asset_id) is None:
-            flash("Asset Not checked out", "warning")
-            return redirect(url_for('checkin'))
         else:
-            asset_checkout = get_checkout(asset_id)
-            print(asset_checkout)
-            staff_div = get_staff(asset_checkout['staffid'])['Division']
             try:
-                conn = get_db()
-                conn.execute(
-                    'INSERT INTO history (assetid, staffid, department, division, checkouttime) VALUES (?,?,?,?,?)',
-                    (asset_id, asset_checkout['staffid'],
-                     asset_checkout['department'], staff_div,
-                     asset_checkout['timestamp']))
-                conn.execute(
-                    'DELETE from checkouts WHERE assetid = ?', (asset_id,))
-                if get_asset(asset_id, "edit")['asset_status'] == "damaged":
-                    conn.execute(
-                        'UPDATE assets SET asset_status = ? WHERE id = ?',
-                        ('damaged', asset_id,))
-                    print(f'Checkin damaged {asset_id}')
-                else:
-                    conn.execute(
-                        'UPDATE assets SET asset_status = ? WHERE id = ?',
-                        ('Available', asset_id,))
-                    print(f'Checkin {asset_id} as Available')
-                conn.commit()
-                flash('Asset checkin Completed', "success")
-                return redirect(url_for('checkin'))
-            except sqlite3.IntegrityError as e:
-                flash(f"{e}", "danger")
-                return redirect(url_for('checkin'))
-    return render_template('checkin.html')
+                checkout_info = db.session.query(Checkout).filter(
+                    Checkout.assetid == asset_id).first()
+                staffer = db.session.query(Staff).filter(
+                    Staff.id == checkout_info.staffid).first()
+
+                db.session.add(History(
+                    assetid=asset_id, staffid=checkout_info.staffid,
+                    department=staffer.department, division=staffer.division,
+                    checkouttime=checkout_info.timestamp, returntime=datetime.now()
+                ))
+                db.session.query(Checkout).filter(
+                    Checkout.assetid == asset_id).delete()
+
+                db.session.query(Asset).filter(Asset.id == asset_id).update(values={
+                    'asset_status': 'Available'})
+
+                db.session.commit()
+                return redirect(url_for('history'))
+            except Exception as e:
+                app.logger.error(e)
+                flash("Return failed", 'warning')
+                return redirect(url_for('return_asset'))
+
+    return render_template('return.html')
+
+# READ ROUTES
 
 
-@app.route('/history')
+@ app.route('/history')
 def history():
-    conn = get_db()
-    assets = conn.execute('SELECT * FROM history').fetchall()
-    conn.commit()
-    return render_template('history.html', assets=assets)
+    try:
+        history_list = db.session.query(History).all()
+        db.session.commit()
+    except Exception as e:
+        app.logger.error(e)
+        flash("History not found", 'warning')
+        return redirect(url_for('history'))
+    return render_template('history.html', assets=history_list)
 
 
-@app.route('/bulk_import', methods=('GET', 'POST'))
+@ app.route('/assets')
+def assets():
+    asset_list = Asset.query.all()
+    return render_template('status.html', assets=asset_list)
+
+
+@ app.route('/staffs')
+def staffs():
+    staff_list = db.session.query(Staff).all()
+    return render_template('staff.html', staffs=staff_list)
+
+
+@app.route('/single_history/<rq_type>/<item_id>')
+def single_history(rq_type, item_id):
+
+    if rq_type == 'asset':
+        item_info = db.session.query(Asset).get(item_id)
+        current = db.session.query(Checkout).filter_by(assetid=item_id).all()
+        history = db.session.query(History).filter_by(assetid=item_id).all()
+    elif rq_type == 'staff':
+        item_info = db.session.query(Staff).get(item_id)
+        current = db.session.query(Checkout).filter_by(staffid=item_id).all()
+        history = db.session.query(History).filter_by(staffid=item_id).all()
+    return render_template('single_history.html', hist_type=rq_type,
+                           current=current, history=history, item_info=item_info
+                           )
+
+
+# IMPORT TASKS
+@ app.route('/bulk_import', methods=('GET', 'POST'))
 def bulk_import():
     if request.method == 'POST':
         uploaded_file = request.files.get('file')
@@ -399,7 +318,7 @@ def bulk_import():
         return render_template('bulk_import.html')
 
 
-@app.route('/show_data', methods=["GET", "POST"])
+@ app.route('/show_data', methods=["GET", "POST"])
 def showData():
     # Retrieving uploaded file path from session
     data_file_path = session.get('uploaded_data_file_path', None)
@@ -425,7 +344,7 @@ def showData():
             parseCSV_assets(
                 data_file_path, asset_id_field,
                 asset_type_field, asset_status_field)
-            return redirect(url_for('status'))
+            return redirect(url_for('assets'))
         elif form_type == 'staff':
             first_name = request.form['first_name']
             last_name = request.form['last_name']
@@ -437,75 +356,42 @@ def showData():
                 data_file_path, first_name, last_name, staff_id,
                 division, department, title)
 
-            return redirect(url_for('staff'))
-            # First Name	Last Name	Staff ID	Division	Department	Title
+            return redirect(url_for('staffs'))
 
 
 def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
-    # Use Pandas to parse the CSV file
     csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
-    # Loop through the Rows
-
-    print("PARSING DATA")
-    print(asset_status)
     for i, row in csvData.iterrows():
         if asset_status != 'Available':
             asset_status == row[asset_status]
 
         try:
-            conn = get_db()
-            conn.execute(
-                'INSERT INTO assets (id, asset_type, asset_status)'
-                'VALUES(?,?,?)',
-                (str(row[asset_id]).lower(), row[asset_type], asset_status)
-            )
-            conn.commit()
-        except sqlite3.IntegrityError:
-            flash("Asset upload failed import", "danger")
-            return redirect(url_for('create_asset'))
+            asset = Asset(id=str(row[asset_id]).lower(
+            ), asset_type=row[asset_type], asset_status=asset_status)
+            db.session.add(asset)
+            db.session.commit()
+        except IntegrityError as e:
+            app.logger.error(e)
+            flash(
+                "Asset upload failed import. This mabe be due to ID conflicts", "danger")
+            return redirect(url_for('asset_create'))
     return redirect(url_for('status'))
 
 
-def parseCSV_staff(
-        filePath, first_name, last_name, staff_id, division, department, title):
-    # Use Pandas to parse the CSV file
+def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, division=False, department=False, title=False):
     csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
-    # Loop through the Rows
-
     for i, row in csvData.iterrows():
         try:
-            conn = get_db()
-            conn.execute(
-                'INSERT INTO staffs (id, first_name, last_name, division, department, title)'
-                'VALUES(?,?,?,?,?,?)',
-                (row[staff_id], row[first_name], row[last_name],
-                 row[division], row[department], row[title]))
-            conn.commit()
-        except sqlite3.IntegrityError:
-            flash("Asset upload failed import", "danger")
-            return redirect(url_for('create_asset'))
-    return redirect(url_for('status'))
+            last_name = row[last_name] if last_name else ""
+            division = row[division] if division else ""
+            title = row[title] if title else ""
 
-
-@app.route('/single_history/<rq_type>/<item_id>')
-def single_history(rq_type, item_id):
-
-    if rq_type == 'asset':
-        conn = get_db()
-        item_info = get_asset(item_id, 'edit')
-        current = conn.execute(
-            'select * from checkouts where assetid = ?', (item_id,))
-        history = conn.execute(
-            'select * from history where assetid = ?', (item_id,))
-        conn.commit()
-    if rq_type == 'staff':
-        item_info = get_staff(item_id)
-        conn = get_db()
-        current = conn.execute(
-            'select * from checkouts where staffid = ?', (item_id,))
-        history = conn.execute(
-            'select * from history where staffid = ?', (item_id,))
-        conn.commit()
-    return render_template('single_history.html', hist_type=rq_type,
-                           current=current, history=history, item_info=item_info
-                           )
+            staff = Staff(id=row[staff_id], first_name=row[first_name], last_name=last_name,
+                          division=division, department=row[department], title=title)
+            db.session.add(staff)
+            db.session.commit()
+        except IntegrityError:
+            flash(
+                "Staff upload failed import. This may be due to ID conflicts.", "danger")
+            return redirect(url_for('staff_create'))
+    return redirect(url_for('staffs'))
