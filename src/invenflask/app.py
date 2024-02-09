@@ -23,7 +23,7 @@ app.config['upload_folder'] = 'uploads'
 
 
 with app.app_context():
-    db.create_all(app=app)
+    db.create_all()
 
 
 @app.context_processor
