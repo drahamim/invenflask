@@ -9,7 +9,7 @@ from importlib.metadata import version
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
-from invenflask.models import Asset, Staff, Checkout, History, db
+from .models import Asset, Staff, Checkout, History, db
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
