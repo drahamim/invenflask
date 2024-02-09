@@ -19,7 +19,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('checkin') }}">Check In
+                        <a class="nav-link" href="{{ url_for('return_asset') }}">Check In
                         </a>
                     </li>
                     <li class="nav-item">
@@ -30,7 +30,7 @@
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
                             aria-haspopup="true" aria-expanded="false">Create</a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ url_for('create_asset') }}">Create Asset</a>
+                            <a class="dropdown-item" href="{{ url_for('asset_create') }}">Create Asset</a>
                             <a class="dropdown-item" href="{{ url_for('staff_create') }}">Create Staff</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url_for('bulk_import') }}">Bulk Import</a>
@@ -38,10 +38,10 @@
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                            aria-haspopup="true" aria-expanded="false">Status</a>
+                            aria-haspopup="true" aria-expanded="false">status</a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ url_for('status') }}">Asset Status</a>
-                            <a class="dropdown-item" href="{{ url_for('staff') }}">Staff List</a>
+                            <a class="dropdown-item" href="{{ url_for('assets') }}">Asset Status</a>
+                            <a class="dropdown-item" href="{{ url_for('staffs') }}">Staff List</a>
                         </div>
                     </li>
                     <li class="nav-item">
