@@ -1,11 +1,12 @@
 import os
 from datetime import datetime
+import subprocess
 
 import pandas as pd
 from flask import Flask, flash, redirect, render_template, request, url_for, session
 from flask_bootstrap import Bootstrap5
 from flask_migrate import Migrate
-from importlib.metadata import version
+from importlib.metadata import version, PackageNotFoundError
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
@@ -28,6 +29,12 @@ with app.app_context():
 
 @app.context_processor
 def get_version():
+    try:
+        version("invenflask")
+    except PackageNotFoundError:
+        return dict(app_version=subprocess.run(
+            ["git", "describe", "--tags", "--abbrev=0"],
+            capture_output=True).stdout.decode('utf-8').strip())
     return dict(app_version=version("invenflask"))
 
 
