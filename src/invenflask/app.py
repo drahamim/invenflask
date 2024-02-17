@@ -211,13 +211,13 @@ def checkout():
                 db.session.query(Asset).filter(Asset.id == asset_id).update(values={
                     'asset_status': 'checkedout'})
 
-                # if accessory:
-                db.session.add(Checkout(
-                    assetid=accessory, staffid=staff_id,
-                    department=staffer.department,
-                    timestamp=datetime.now()))
-                db.session.query(Asset).filter(Asset.id == accessory).update(values={
-                    'asset_status': 'checkedout'})
+                if accessory:
+                    db.session.add(Checkout(
+                        assetid=accessory, staffid=staff_id,
+                        department=staffer.department,
+                        timestamp=datetime.now()))
+                    db.session.query(Asset).filter(Asset.id == accessory).update(values={
+                        'asset_status': 'checkedout'})
 
                 db.session.commit()
                 flash('Asset was successfully checked out!', "success")
