@@ -14,6 +14,8 @@ A small inventory ledger, based on Flask.
 
 Proper Python distributions are currently a work in progress. Until then, install from a git clone or a source code snapshot from [releases](https://github.com/drahamim/invenflask/releases).
 
+
+### PIP/VENV configuration 
 Within the unpacked directory:
 1. Set up virtual environment:
    ```
@@ -23,33 +25,20 @@ Within the unpacked directory:
    ```
    venv/bin/pip install .
    ```
-3. Initialize database:
-   ```
-   venv/bin/invenflask-init-db
-   ```
-   This will create or overwrite a sqlite3 database named `database.db` in the current directory, which is the only setup the application currently understands.
 
-   Note that this is a destructive operation. If `database.db` already exists, all tables that  
+### Database
+1. Install a Postgres Database https://www.postgresql.org/
+2. export Database URI as `DATABASE_URI`  
 
-4. Configuration:
-   1. Generate a secret key:
-      ```
-      $ python
-      >>> import uuid
-      uuid.uuid4().hex
-      ```
-   2. Copy example to config file:
-      ``` 
-      cp example.config.py config.py
-      ```
-   3. Copy the output from step 1 into config.py as the value for `SECRET_KEY`
- ## Development Instructions
+
+## Development Instructions
+For development, perform an _editable install_ instead at step 2 above, with `pip install -e .`
  Start a development server:
    ```
    venv/bin/flask --app invenflask.app run
    ```
 
-For development, perform an _editable install_ instead at step 2 above, with `pip install -e .`
+
 
 ## Gunicorn (Production)
 Follow Steps 1-4 of the Setup guide then continue with the following:
