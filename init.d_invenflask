@@ -1,0 +1,67 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides: invenflask
+# Required-Start: $network $syslog
+# Required-Stop: $network $syslog
+# X-Start-Before:
+# X-Stop-After:
+# Default-Start: 2 3 4
+# Default-Stop: 0 6
+# Short-Description: runs invenflask dev mode
+### END INIT INFO
+
+_stop ()
+{
+  echo killall gunicorn
+  killall gunicorn
+  echo 'STOPPED (I hope)'
+# bug: pid is of the su process. killing it doesn't stop forked off gunicorn processes
+#  if [ -f /var/run/invenflask.pid ] ; then
+#      echo kill $(cat /var/run/invenflask.pid)
+#      kill $(cat /var/run/invenflask.pid)
+#      rm -f /var/run/invenflask.pid
+#      echo 'STOPPED (I hope)'
+#      fi
+}
+
+_start ()
+{
+  _stop # always stop because of above bug
+  for F in /home/invenflask/init.sh /home/kjw/github/invenflask/init.sh ; do
+    if [ -f "${F}" ] ; then
+      echo "${F}"
+      su -c "${F}" invenflask &
+      #echo $! >/var/run/invenflask.pid
+      echo 'STARTED'
+      break
+      fi
+    done
+}
+
+case "$1" in
+  start)
+    _start
+    ;;
+  stop)
+    _stop
+    ;;
+  restart)
+    _stop
+    _start
+    ;;
+  install)
+    cat "$0" >/etc/init.d/invenflask
+    chmod +x /etc/init.d/invenflask
+    ln -sf ../init.d/invenflask /etc/rc2.d/S99invenflask
+    ln -sf ../init.d/invenflask /etc/rc3.d/S99invenflask
+    ln -sf ../init.d/invenflask /etc/rc4.d/S99invenflask
+    ln -sf ../init.d/invenflask /etc/rc6.d/K01invenflask
+    ln -sf ../init.d/invenflask /etc/rc0.d/K01invenflask
+    ;;
+  *)
+    echo 'Usage: $0 [start|stop|restart|install]' >&2
+    exit 1
+    ;;
+esac
+
