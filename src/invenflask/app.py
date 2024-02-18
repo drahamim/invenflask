@@ -25,6 +25,7 @@ app.config['upload_folder'] = 'uploads'
 
 with app.app_context():
     db.create_all()
+    db.session.commit()
 
 
 @app.context_processor
