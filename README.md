@@ -1,66 +1,36 @@
 # Invenflask
 [![Release](https://github.com/drahamim/invenflask/actions/workflows/release.yml/badge.svg)](https://github.com/drahamim/invenflask/actions/workflows/release.yml)
 
-A small inventory ledger, based on Flask.
+A small inventory ledger, based on Flask. Intitally designed for Radio Checkout at various conventions. 
 
-[Setup](#setup)
+## Features
+- Easy Checkin/Out functionality
+- Clean UI/UX 
+- Indivudual Staff or Asset History
+- Full ledger of all Asset Activity
+- Easy inport of Assets or Staff via CSV
 
-[Import Staff](#import-staff)
-[Import Assets](#import-assets)
-[]
+## Installation
+
+### Prerequisites
+- Python 3.11.7
+- Postgres 14.9 or SQLite 3.39.5
 
 
-## Setup
+### Install Steps
 
-Proper Python distributions are currently a work in progress. Until then, install from a git clone or a source code snapshot from [releases](https://github.com/drahamim/invenflask/releases).
+#### Database
+1. Install a Postgres Database https://www.postgresql.org/
+2. export Database URI as `DATABASE_URI` Ex. `postgresql://<hostaneme>/<databasename>`
 
-Within the unpacked directory:
-1. Set up virtual environment:
-   ```
-   python3 -m venv venv
-   ```
-2. Install invenflask:
-   ```
-   venv/bin/pip install .
-   ```
-3. Initialize database:
-   ```
-   venv/bin/invenflask-init-db
-   ```
-   This will create or overwrite a sqlite3 database named `database.db` in the current directory, which is the only setup the application currently understands.
 
-   Note that this is a destructive operation. If `database.db` already exists, all tables that  
 
-4. Configuration:
-   1. Generate a secret key:
-      ```
-      $ python
-      >>> import uuid
-      uuid.uuid4().hex
-      ```
-   2. Copy example to config file:
-      ``` 
-      cp example.config.py config.py
-      ```
-   3. Copy the output from step 1 into config.py as the value for `SECRET_KEY`
- ## Development Instructions
- Start a development server:
-   ```
-   venv/bin/flask --app invenflask.app run
-   ```
-
-For development, perform an _editable install_ instead at step 2 above, with `pip install -e .`
-
-## Gunicorn (Production)
-Follow Steps 1-4 of the Setup guide then continue with the following:
-1. Install Gunicorn
-   ```
-   venv/bin/pip install gunicorn
-   ```
-2. Run gunicorn
-   ```
-   venv/bin/gunicorn -w 1 --bind 0.0.0.0:8000 wsgi:app
-   ```
+#### Zip Deploy
+- Install [Prerequisits](#prerequisites)
+-  Download Zip from [Releases](https://github.com/drahamim/releases/latest)
+-  unzip into local directory
+-  pip install -r requirements.txt
+-  run with `gunicorn -w 1 --bind 0.0.0.0:8000 wsgi:app`
 
 
 ## Import Staff
@@ -69,10 +39,8 @@ This can be done on the **Bulk Import** page.
 Staff information support the following columns of information:
 
 ```ID, First Name, Last Name, Division, Department, Title``` 
-*ID must be unique*
-
-Currently we do not support less than 6 columns on the import. 
-If you don't have all the matching just create blank columns with the headers as needed. 
+* ID must be unique
+* Last NAme, Division and Title have a "Leave BlanK" Option are are thus optional
 
 ## Import Assets
 This can be done on the **Bulk Import** page.
@@ -83,3 +51,21 @@ Assets currently support the following columns:
 *ID must be unique*
 
 Status is special because by default it will import as **Available** unless a column is specified for unique status tracking
+
+
+
+# Contributing
+Please file an issue if you encounter a bug or are requesting a feature
+
+If you want to contribute to the development please fork this repository and submit a pull request. 
+
+## Development Instructions
+For development, perform an _editable install_ 
+1. Clone this repository
+2. Run `python -m venv venv`
+3. Run `source venv/bin/activate`
+4. Run `pip install -e .`
+5. Start a development server:
+   ```
+   venv/bin/flask --app invenflask.app run
+   ```
