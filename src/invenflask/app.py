@@ -20,7 +20,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['upload_folder'] = 'uploads'
 
-## Init DB 
+# Init DB
 db.init_app(app)
 migrate = Migrate(app, db)
 
