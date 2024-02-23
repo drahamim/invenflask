@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, UniqueConstraint
+from sqlalchemy import Column, String, Integer, DateTime
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -10,10 +10,7 @@ class Asset(db.Model):
     id = Column(String, primary_key=True)
     asset_type = Column(String, nullable=False)
     asset_status = Column(String, nullable=False)
-
-    __table_args__ = (
-        UniqueConstraint('id', name='asset_id'),
-    )
+    db.UniqueConstraint('id', name='asset_id')
 
 
 class Staff(db.Model):
@@ -34,10 +31,7 @@ class Checkout(db.Model):
     staffid = Column(String, nullable=False)
     department = Column(String, nullable=False)
     timestamp = Column(DateTime, nullable=False)
-
-    __table_args__ = (
-        UniqueConstraint('assetid', name='check_a_id'),
-    )
+    db.UniqueConstraint('assetid', name='check_a_id')
 
 
 class History(db.Model):
