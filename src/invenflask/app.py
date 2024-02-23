@@ -15,16 +15,14 @@ from .models import Asset, Staff, Checkout, History, db
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URI', 'sqlite:////tmp/test.db')
-db.init_app(app)
 bootstrap = Bootstrap5(app)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SECRET_KEY'] = os.urandom(24)
-migrate = Migrate(app, db)
 app.config['upload_folder'] = 'uploads'
 
-
-with app.app_context():
-    db.create_all()
+# Init DB
+db.init_app(app)
+migrate = Migrate(app, db)
 
 
 @app.context_processor
