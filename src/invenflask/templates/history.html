@@ -8,8 +8,8 @@
         <th>staff ID</th>
         <th>Department</th>
         <th>Division</th>
-        <th>CheckoutTime</th>
-        <th>ReturnTime</th>
+        <th><div>Checkout Time</div><div>Browser Local</div></th>
+        <th><div>Return Time</div><div>Browser Local</div></th>
       </tr>
     </thead>
     <tbody>
@@ -19,8 +19,8 @@
           <td>{{ asset.staffid }}</td>
           <td>{{ asset.department }}</td>
           <td>{{ asset.division }}</td>
-          <td>{{ asset.checkouttime }}</td>
-          <td>{{ asset.returntime }}</td>
+          <td>{{ moment(asset.checkouttime, local=True).format('LLL') }}</td>
+          <td>{{ moment(asset.returntime, local=True).format('LLL') }}</td>
           </td>
         </tr>
       {% endfor %}
