@@ -39,7 +39,7 @@
     {% for item in current %}
     <tr>
       <td>{{ item.assetid }}</td>
-      <td>{{ item.timestamp }}</td>
+      <td>{{ moment(item.timestamp, local=True).format('LLL') }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -58,8 +58,8 @@
     {% for item in history %}
     <tr>
       <td>{{ item.assetid }}</td>
-      <td>{{ item.checkouttime }}</td>
-      <td>{{ item.returntime }}</td>
+      <td>{{ moment(item.checkouttime, local=True).format('LLL') }}</td>
+      <td>{{ moment(item.returntime, local=True).format('LLL') }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -100,7 +100,7 @@
     <tr>
       <td>{{ item.staffid }}</td>
       <td>{{ item.department }}</td>
-      <td>{{ item.timestamp }}</td>
+      <td>{{ moment(item.timestamp, local=True).format('LLL') }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -123,8 +123,8 @@
       <td>{{ item.staffid }}</td>
       <td>{{ item.department }}</td>
       <td>{{ item.division }}</td>
-      <td>{{ item.checkouttime }}</td>
-      <td>{{ item.returntime }}</td>
+      <td>{{ moment(item.checkouttime, local=True).format('LLL') }}</td>
+      <td>{{ moment(item.returntime, local=True).format('LLL') }}</td>
     </tr>
     {% endfor %}
   </tbody>
