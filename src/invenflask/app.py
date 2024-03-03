@@ -9,8 +9,10 @@ from flask_migrate import Migrate
 from importlib.metadata import version, PackageNotFoundError
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
+from flask_moment import Moment
 
 from .models import Asset, Staff, Checkout, History, db
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
@@ -19,10 +21,20 @@ bootstrap = Bootstrap5(app)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['upload_folder'] = 'uploads'
+moment = Moment(app)
 
 # Init DB
 db.init_app(app)
 migrate = Migrate(app, db)
+
+# @app.context
+# def inject_settings():
+#     if not db.session.query(GlobalSet).filter(GlobalSet.settingid == "timezone"):
+#         db.session.add(GlobalSet(settingid="timezone", setting="UTC"))
+#         db.session.commit()
+#     else:
+#         print("timezone already set")
+#     return dict(settings=db.session.query(GlobalSet).all())
 
 
 @app.context_processor

@@ -48,6 +48,10 @@
                         <a class="nav-link" href="{{ url_for('history') }}">History
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('settings') }}">Settings
+                        </a>
+                    </li>
                 </ul>
                 <!-- <form class="d-flex">
                 <input class="form-control me-sm-2" type="search" placeholder="Search">
@@ -61,6 +65,7 @@
 </head>
 
 <body {{ load_checkout|safe if load_checkout is not none else 'NONE'  }} >
+    {{moment.include_moment()}}
     <hr>
     <div class="content">
         {% with messages = get_flashed_messages(with_categories=true) %}
