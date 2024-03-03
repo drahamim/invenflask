@@ -39,7 +39,7 @@
           <td>{{ item.assetid }}</td>
           <td>{{ item.staffid }}</td>
           <td>{{ item.department }}</td>
-          <td>{{ item.timestamp }}</td>
+          <td>{{ moment(item.timestamp, local=True).format('LLL') }}</td>
           </td>
         </tr>
       {% endfor %}

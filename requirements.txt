@@ -15,7 +15,7 @@ pandas          == 2.2.1
 pip             == 24.0
 python-dateutil == 2.8.2
 pytz            == 2024.1
-setuptools      == 69.1.0
+setuptools      == 69.1.1
 six             == 1.16.0
 toml            == 0.10.2
 typing_extensions == 4.9.0
@@ -29,3 +29,4 @@ flask-sqlalchemy >= 3.0.1
 psycopg2        == 2.9.9
 flask-migrate   == 4.0.5
 gunicorn        == 21.2.0
+flask-moment   == 1.0.5
