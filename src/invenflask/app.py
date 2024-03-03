@@ -9,8 +9,10 @@ from flask_migrate import Migrate
 from importlib.metadata import version, PackageNotFoundError
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
+from flask_moment import Moment
 
-from .models import Asset, Staff, Checkout, History, db
+from .models import Asset, Staff, Checkout, History, db, GlobalSet
+from .forms import SettingsForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
@@ -19,10 +21,20 @@ bootstrap = Bootstrap5(app)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['upload_folder'] = 'uploads'
+moment = Moment(app)
 
 # Init DB
 db.init_app(app)
 migrate = Migrate(app, db)
+
+# @app.context
+# def inject_settings():
+#     if not db.session.query(GlobalSet).filter(GlobalSet.settingid == "timezone"):
+#         db.session.add(GlobalSet(settingid="timezone", setting="UTC"))
+#         db.session.commit()
+#     else:
+#         print("timezone already set")
+#     return dict(settings=db.session.query(GlobalSet).all())
 
 
 @app.context_processor
@@ -400,3 +412,19 @@ def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, 
                 "Staff upload failed import. This may be due to ID conflicts.", "danger")
             return redirect(url_for('staff_create'))
     return redirect(url_for('staffs'))
+
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    form = SettingsForm()
+    if form.validate_on_submit():
+        tz = GlobalSet.query.filter_by(settingid="timezone").first()
+        tz.setting = form.timezone.data
+        db.session.commit()
+        flash('Your settings have been updated.')
+        return redirect(url_for('settings'))
+    elif request.method == 'GET':
+
+        form.timezone.data = db.session.query(GlobalSet).filter(
+            GlobalSet.settingid == "timezone").first().setting
+    return render_template('settings.html', title='Settings', form=form)

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Settings</h1>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      <label for="timezone">{{ form.timezone.label }}</label>
+      {{ form.timezone(class="form-control") }}
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg">Save</button>
+  </form>
+{% endblock %}

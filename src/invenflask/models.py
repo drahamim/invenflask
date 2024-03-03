@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String, Integer, DateTime
 from flask_sqlalchemy import SQLAlchemy
-
 db = SQLAlchemy()
 
 
@@ -43,3 +42,11 @@ class History(db.Model):
     division = Column(String, nullable=False)
     checkouttime = Column(DateTime, nullable=False)
     returntime = Column(DateTime, nullable=False)
+
+
+class GlobalSet(db.Model):
+    __tablename__ = 'globalset'
+
+    settingid = Column(String, primary_key=True)
+    setting = Column(String, nullable=False)
+    db.UniqueConstraint('settingid', name='setting_id')
