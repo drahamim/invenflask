@@ -10,7 +10,7 @@ from importlib.metadata import version, PackageNotFoundError
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 from flask_moment import Moment
-
+from sqlalchemy import func
 from .models import Asset, Staff, Checkout, History, db, GlobalSet
 from .forms import SettingsForm
 
@@ -70,7 +70,6 @@ def index():
 
 @app.route('/create/asset', methods=('GET', 'POST'))
 def asset_create():
-    assets = db.session.query(Asset).all()
 
     if request.method == 'POST':
         asset_id = request.form['id']
@@ -79,7 +78,8 @@ def asset_create():
 
         if not asset_id or not asset_status or not asset_type:
             flash('All fields are required', "warning")
-        if asset_id in assets:
+        if db.session.query(Asset).filter(
+                func.lower(Asset.id) == asset_id.lower()).all():
             flash('Asset already exists', "warning")
             return redirect(url_for('asset_create'))
         else:
@@ -141,7 +141,8 @@ def staff_create():
         if not staff_id or not first_name:
             flash('All fields are required', "warning")
 
-        if db.session.query(Staff).filter_by(id=staff_id).scalar():
+        if db.session.query(Staff).filter(
+                func.lower(Staff.id) == staff_id.lower()).all():
             flash('Staff already exists', "warning")
             return redirect(url_for('staff_create'))
         else:
@@ -157,6 +158,12 @@ def staff_create():
                 return redirect(url_for('staff_create'))
 
     return render_template('staff_create.html')
+
+
+@ app.route('/staffs')
+def staffs():
+    staff_list = db.session.query(Staff).all()
+    return render_template('staff.html', staffs=staff_list)
 
 
 @app.route('/edit/staff/<staff_id>', methods=('GET', 'POST'))
@@ -195,39 +202,52 @@ def checkout():
     if request.method == 'POST':
         asset_id = request.form['id']
         staff_id = request.form['staffid']
-        accessory = request.form['accessoryid']
+        accessory_id = request.form['accessoryid']
+        if not asset_id or not staff_id:
+            flash('Staff and or Asset fields are required', "warning")
 
-        if not db.session.query(Asset).filter_by(id=asset_id).scalar():
+        if not db.session.query(Asset).filter_by(
+                func.lower(id) == asset_id.lower()).scalar():
             flash('Asset does not exist', "warning")
             return render_template('checkout.html')
-        if not db.session.query(Staff).filter_by(id=staff_id).scalar():
+
+        if not db.session.query(Staff).filter_by(
+                func.lower(id) == staff_id.lower()).scalar():
             flash('Staff does not exist', "warning")
             return render_template('checkout.html')
-        if not db.session.query(Asset).filter_by(id=accessory).scalar() and accessory != '':
+
+        if not db.session.query(Asset).filter_by(
+                func.lower(id) == accessory_id.lower()
+        ).scalar() and accessory_id != '':
             flash('Accessory does not exist', "warning")
             return render_template('checkout.html')
 
-        if not asset_id or not staff_id:
-            flash('Staff and or Asset fields are required', "warning")
         else:
             try:
                 staffer = db.session.query(Staff).filter(
-                    Staff.id == staff_id).first()
+                    func.lower(Staff.id) == staff_id.lower()).first()
+                asset = db.session.query(Asset).filter(
+                    func.lower(Asset.id) == asset_id.lower()).first()
                 app.logger.info(staffer)
                 db.session.add(Checkout(
-                    assetid=asset_id, staffid=staff_id,
+                    assetid=asset, staffid=staff_id,
                     department=staffer.department,
                     timestamp=datetime.now()))
-                db.session.query(Asset).filter(Asset.id == asset_id).update(values={
-                    'asset_status': 'checkedout'})
+                db.session.query(Asset).filter(
+                    Asset.id == asset).update(values={
+                        'asset_status': 'checkedout'})
 
-                if accessory:
+                if accessory_id:
+                    accessory = db.session.query(Asset).filter(
+                        func.lower(Asset.id) == accessory_id.lower()).first()
+
                     db.session.add(Checkout(
                         assetid=accessory, staffid=staff_id,
                         department=staffer.department,
                         timestamp=datetime.now()))
-                    db.session.query(Asset).filter(Asset.id == accessory).update(values={
-                        'asset_status': 'checkedout'})
+                    db.session.query(Asset).filter(func.lower(
+                        Asset.id) == accessory_id.lower()).update(values={
+                            'asset_status': 'checkedout'})
 
                 db.session.commit()
                 flash('Asset was successfully checked out!', "success")
@@ -250,20 +270,24 @@ def return_asset():
         else:
             try:
                 checkout_info = db.session.query(Checkout).filter(
-                    Checkout.assetid == asset_id).first()
+                    func.lower(Checkout.assetid) == asset_id.lower()).first()
                 staffer = db.session.query(Staff).filter(
-                    Staff.id == checkout_info.staffid).first()
+                    func.lower(Staff.id) == checkout_info.staffid.lower()).first()
 
                 db.session.add(History(
-                    assetid=asset_id, staffid=checkout_info.staffid,
-                    department=staffer.department, division=staffer.division,
-                    checkouttime=checkout_info.timestamp, returntime=datetime.now()
+                    assetid=checkout_info.assetid,
+                    staffid=checkout_info.staffid,
+                    department=staffer.department,
+                    division=staffer.division,
+                    checkouttime=checkout_info.timestamp,
+                    returntime=datetime.now()
                 ))
                 db.session.query(Checkout).filter(
-                    Checkout.assetid == asset_id).delete()
+                    func.lower(Checkout.assetid) == asset_id.lower()).delete()
 
-                db.session.query(Asset).filter(Asset.id == asset_id).update(values={
-                    'asset_status': 'Available'})
+                db.session.query(Asset).filter(
+                    func.lower(Asset.id) == asset_id.lower()).update(values={
+                        'asset_status': 'Available'})
 
                 db.session.commit()
                 return redirect(url_for('history'))
@@ -295,12 +319,6 @@ def assets():
     return render_template('status.html', assets=asset_list)
 
 
-@ app.route('/staffs')
-def staffs():
-    staff_list = db.session.query(Staff).all()
-    return render_template('staff.html', staffs=staff_list)
-
-
 @app.route('/single_history/<rq_type>/<item_id>')
 def single_history(rq_type, item_id):
 
@@ -312,9 +330,10 @@ def single_history(rq_type, item_id):
         item_info = db.session.query(Staff).get(item_id)
         current = db.session.query(Checkout).filter_by(staffid=item_id).all()
         history = db.session.query(History).filter_by(staffid=item_id).all()
-    return render_template('single_history.html', hist_type=rq_type,
-                           current=current, history=history, item_info=item_info
-                           )
+    return render_template(
+        'single_history.html', hist_type=rq_type,
+        current=current, history=history, item_info=item_info
+    )
 
 
 # IMPORT TASKS
@@ -333,6 +352,44 @@ def bulk_import():
         return redirect(url_for('showData', form_type=form_type))
     if request.method == "GET":
         return render_template('bulk_import.html')
+
+
+def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
+    csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
+    for i, row in csvData.iterrows():
+        if asset_status != 'Available':
+            asset_status == row[asset_status]
+
+        try:
+            asset = Asset(id=str(row[asset_id]).lower(
+            ), asset_type=row[asset_type], asset_status=asset_status)
+            db.session.add(asset)
+            db.session.commit()
+        except IntegrityError as e:
+            app.logger.error(e)
+            flash(
+                "Asset upload failed import. This mabe be due to ID conflicts", "danger")
+            return redirect(url_for('asset_create'))
+    return redirect(url_for('status'))
+
+
+def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, division=False, department=False, title=False):
+    csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
+    for i, row in csvData.iterrows():
+        try:
+            last_name = row[last_name] if last_name else ""
+            division = row[division] if division else ""
+            title = row[title] if title else ""
+
+            staff = Staff(id=row[staff_id], first_name=row[first_name], last_name=last_name,
+                          division=division, department=row[department], title=title)
+            db.session.add(staff)
+            db.session.commit()
+        except IntegrityError:
+            flash(
+                "Staff upload failed import. This may be due to ID conflicts.", "danger")
+            return redirect(url_for('staff_create'))
+    return redirect(url_for('staffs'))
 
 
 @ app.route('/show_data', methods=["GET", "POST"])
@@ -376,44 +433,6 @@ def showData():
             return redirect(url_for('staffs'))
 
 
-def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
-    csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
-    for i, row in csvData.iterrows():
-        if asset_status != 'Available':
-            asset_status == row[asset_status]
-
-        try:
-            asset = Asset(id=str(row[asset_id]).lower(
-            ), asset_type=row[asset_type], asset_status=asset_status)
-            db.session.add(asset)
-            db.session.commit()
-        except IntegrityError as e:
-            app.logger.error(e)
-            flash(
-                "Asset upload failed import. This mabe be due to ID conflicts", "danger")
-            return redirect(url_for('asset_create'))
-    return redirect(url_for('status'))
-
-
-def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, division=False, department=False, title=False):
-    csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
-    for i, row in csvData.iterrows():
-        try:
-            last_name = row[last_name] if last_name else ""
-            division = row[division] if division else ""
-            title = row[title] if title else ""
-
-            staff = Staff(id=row[staff_id], first_name=row[first_name], last_name=last_name,
-                          division=division, department=row[department], title=title)
-            db.session.add(staff)
-            db.session.commit()
-        except IntegrityError:
-            flash(
-                "Staff upload failed import. This may be due to ID conflicts.", "danger")
-            return redirect(url_for('staff_create'))
-    return redirect(url_for('staffs'))
-
-
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
     form = SettingsForm()
@@ -424,7 +443,6 @@ def settings():
         flash('Your settings have been updated.')
         return redirect(url_for('settings'))
     elif request.method == 'GET':
-
         form.timezone.data = db.session.query(GlobalSet).filter(
             GlobalSet.settingid == "timezone").first().setting
     return render_template('settings.html', title='Settings', form=form)
