@@ -24,7 +24,10 @@ app.config['upload_folder'] = 'uploads'
 moment = Moment(app)
 
 # Init DB
-db.init_app(app)
+with app.app_context():
+    db.init_app(app)
+    db.create_all()
+    db.session.commit()
 migrate = Migrate(app, db)
 
 # @app.context
