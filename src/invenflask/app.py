@@ -11,9 +11,8 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 from flask_moment import Moment
 from sqlalchemy import func
-# from .models import Asset, Staff, Checkout, History, db, GlobalSet
-from .models import Asset, Staff, Checkout, History, db
-# from .forms import SettingsForm
+from .models import Asset, Staff, Checkout, History, db, GlobalSet
+from .forms import SettingsForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
@@ -437,16 +436,16 @@ def showData():
             return redirect(url_for('staffs'))
 
 
-# @app.route('/settings', methods=['GET', 'POST'])
-# def settings():
-#     form = SettingsForm()
-#     if form.validate_on_submit():
-#         tz = GlobalSet.query.filter_by(settingid="timezone").first()
-#         tz.setting = form.timezone.data
-#         db.session.commit()
-#         flash('Your settings have been updated.')
-#         return redirect(url_for('settings'))
-#     elif request.method == 'GET':
-#         form.timezone.data = db.session.query(GlobalSet).filter(
-#             GlobalSet.settingid == "timezone").first().setting
-#     return render_template('settings.html', title='Settings', form=form)
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    form = SettingsForm()
+    if form.validate_on_submit():
+        tz = GlobalSet.query.filter_by(settingid="timezone").first()
+        tz.setting = form.timezone.data
+        db.session.commit()
+        flash('Your settings have been updated.')
+        return redirect(url_for('settings'))
+    elif request.method == 'GET':
+        form.timezone.data = db.session.query(GlobalSet).filter(
+            GlobalSet.settingid == "timezone").first().setting
+    return render_template('settings.html', title='Settings', form=form)
