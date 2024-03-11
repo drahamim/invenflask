@@ -30,4 +30,4 @@ psycopg2        == 2.9.9
 flask-migrate   == 4.0.5
 gunicorn        == 21.2.0
 flask-moment   == 1.0.5
-flask-WTF      == 0.15.1
+flask-WTF      == 1.2.1
