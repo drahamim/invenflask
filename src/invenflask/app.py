@@ -20,8 +20,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
 bootstrap = Bootstrap5(app)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SECRET_KEY'] = os.urandom(24)
-app.config['upload_folder'] = 'uploads'
+app.config['upload_folder'] = '/tmp/uploads'
 moment = Moment(app)
+
+if not os.path.exists(app.config['upload_folder']):
+    os.makedirs(app.config['upload_folder'])
 
 # Init DB
 with app.app_context():
@@ -373,7 +376,7 @@ def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
             flash(
                 "Asset upload failed import. This mabe be due to ID conflicts", "danger")
             return redirect(url_for('asset_create'))
-    return redirect(url_for('status'))
+    return redirect(url_for('assets'))
 
 
 def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, division=False, department=False, title=False):
