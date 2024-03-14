@@ -212,22 +212,22 @@ def checkout():
         accessory_id = request.form['accessoryid']
         if not asset_id or not staff_id:
             flash('Staff and or Asset fields are required', "warning")
-
-        if not db.session.query(Asset).filter(
-                func.lower(Asset.id) == asset_id.lower()).scalar():
+        if not db.session.query(db.session.query(Asset).filter(
+                func.lower(Asset.id) == asset_id.lower()).exists()
+        ).scalar():
             flash('Asset does not exist', "warning")
             return render_template('checkout.html')
-
-        if not db.session.query(Staff).filter(
-                func.lower(Staff.id) == staff_id.lower()).scalar():
+        if not db.session.query(db.session.query(Staff).filter(
+                func.lower(Staff.id) == staff_id.lower()).exists()
+        ).scalar():
             flash('Staff does not exist', "warning")
             return render_template('checkout.html')
-
-        if not db.session.query(Asset).filter(
-                func.lower(Asset.id) == accessory_id.lower()
-        ).scalar() and accessory_id != '':
-            flash('Accessory does not exist', "warning")
-            return render_template('checkout.html')
+        if accessory_id:
+            if not db.session.query(db.session.query(Asset).filter(
+                    func.lower(Asset.id) == accessory_id.lower()).exists()
+            ).scalar() and accessory_id != '':
+                flash('Accessory does not exist', "warning")
+                return render_template('checkout.html')
 
         else:
             try:
@@ -235,16 +235,18 @@ def checkout():
                     func.lower(Staff.id) == staff_id.lower()).first()
                 asset = db.session.query(Asset).filter(
                     func.lower(Asset.id) == asset_id.lower()).first()
-                app.logger.info(staffer)
+                print('add checkout')
                 db.session.add(Checkout(
-                    assetid=asset, staffid=staff_id,
+                    assetid=asset.id, staffid=staffer.id,
                     department=staffer.department,
                     timestamp=datetime.now()))
+                print('update asset')
                 db.session.query(Asset).filter(
-                    Asset.id == asset).update(values={
+                    Asset.id == asset.id).update(values={
                         'asset_status': 'checkedout'})
 
                 if accessory_id:
+                    print("accessory id found")
                     accessory = db.session.query(Asset).filter(
                         func.lower(Asset.id) == accessory_id.lower()).first()
 
