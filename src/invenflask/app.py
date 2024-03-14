@@ -19,7 +19,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URI', 'sqlite:////tmp/test.db')
 bootstrap = Bootstrap5(app)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY','os.urandom(24)')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'os.urandom(24)')
 app.config['upload_folder'] = '/tmp/uploads'
 moment = Moment(app)
 
@@ -213,17 +213,17 @@ def checkout():
         if not asset_id or not staff_id:
             flash('Staff and or Asset fields are required', "warning")
 
-        if not db.session.query(Asset).filter_by(
+        if not db.session.query(Asset).filter(
                 func.lower(id) == asset_id.lower()).scalar():
             flash('Asset does not exist', "warning")
             return render_template('checkout.html')
 
-        if not db.session.query(Staff).filter_by(
+        if not db.session.query(Staff).filter(
                 func.lower(id) == staff_id.lower()).scalar():
             flash('Staff does not exist', "warning")
             return render_template('checkout.html')
 
-        if not db.session.query(Asset).filter_by(
+        if not db.session.query(Asset).filter(
                 func.lower(id) == accessory_id.lower()
         ).scalar() and accessory_id != '':
             flash('Accessory does not exist', "warning")
