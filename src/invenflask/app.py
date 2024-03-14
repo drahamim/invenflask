@@ -19,7 +19,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URI', 'sqlite:////tmp/test.db')
 bootstrap = Bootstrap5(app)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.config['SECRET_KEY'] = os.urandom(24)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY','os.urandom(24)')
 app.config['upload_folder'] = '/tmp/uploads'
 moment = Moment(app)
 
