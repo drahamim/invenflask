@@ -182,9 +182,10 @@ def staff_edit(staff_id):
         department = request.form['department']
         title = request.form['title']
 
-        db.session.update(staffs).where(staffs.c.staff_id == staff_id).values(
-            first_name=first_name, last_name=last_name, division=division, department=department, title=title
-        )
+        db.session.query(Staff).filter(Staff.id == staff_id).update(
+            values={Staff.first_name: first_name, Staff.last_name: last_name,
+                    Staff.division: division, Staff.department: department,
+                    Staff.title: title})
         db.session.commit()
         return redirect(url_for('staffs'))
 
@@ -402,7 +403,7 @@ def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, 
 def showData():
     # Retrieving uploaded file path from session
     data_file_path = session.get('uploaded_data_file_path', None)
-
+    print("Data_FIle_Path" + data_file_path)
     # read csv file in python flask (reading uploaded csv file from uploaded server location)
     uploaded_df = pd.read_csv(data_file_path)
 
