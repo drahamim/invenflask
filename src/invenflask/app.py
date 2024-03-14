@@ -214,17 +214,17 @@ def checkout():
             flash('Staff and or Asset fields are required', "warning")
 
         if not db.session.query(Asset).filter(
-                func.lower(id) == asset_id.lower()).scalar():
+                func.lower(Asset.id) == asset_id.lower()).scalar():
             flash('Asset does not exist', "warning")
             return render_template('checkout.html')
 
         if not db.session.query(Staff).filter(
-                func.lower(id) == staff_id.lower()).scalar():
+                func.lower(Staff.id) == staff_id.lower()).scalar():
             flash('Staff does not exist', "warning")
             return render_template('checkout.html')
 
         if not db.session.query(Asset).filter(
-                func.lower(id) == accessory_id.lower()
+                func.lower(Asset.id) == accessory_id.lower()
         ).scalar() and accessory_id != '':
             flash('Accessory does not exist', "warning")
             return render_template('checkout.html')
