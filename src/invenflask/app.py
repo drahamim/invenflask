@@ -228,6 +228,15 @@ def checkout():
             ).scalar() and accessory_id != '':
                 flash('Accessory does not exist', "warning")
                 return render_template('checkout.html')
+            if db.session.query(Checkout).filter(func.lower(
+                    func.lower(Checkout.assetid)) == accessory_id.lower()).first():
+                flash('Accessory already checked out no checkouts saved', "warning")
+                return render_template('checkout.html')
+
+        if db.session.query(Checkout).filter(func.lower(
+                func.lower(Checkout.assetid)) == asset_id.lower()).first():
+            flash('Asset already checked out no checkouts saved', "warning")
+            return render_template('checkout.html')
 
         else:
             try:
