@@ -260,7 +260,7 @@ def checkout():
                         func.lower(Asset.id) == accessory_id.lower()).first()
 
                     db.session.add(Checkout(
-                        assetid=accessory, staffid=staff_id,
+                        assetid=accessory.id, staffid=staffer.id,
                         department=staffer.department,
                         timestamp=datetime.now()))
                     db.session.query(Asset).filter(func.lower(
@@ -287,11 +287,14 @@ def return_asset():
             flash('Asset ID is required', "warning")
         else:
             try:
+                print('get checkout info')
                 checkout_info = db.session.query(Checkout).filter(
                     func.lower(Checkout.assetid) == asset_id.lower()).first()
+                print('get staffer info')
                 staffer = db.session.query(Staff).filter(
                     func.lower(Staff.id) == checkout_info.staffid.lower()).first()
 
+                print('add history')
                 db.session.add(History(
                     assetid=checkout_info.assetid,
                     staffid=checkout_info.staffid,
@@ -300,13 +303,14 @@ def return_asset():
                     checkouttime=checkout_info.timestamp,
                     returntime=datetime.now()
                 ))
-                db.session.query(Checkout).filter(
-                    func.lower(Checkout.assetid) == asset_id.lower()).delete()
-
+                print('update asset')
                 db.session.query(Asset).filter(
-                    func.lower(Asset.id) == asset_id.lower()).update(values={
+                    Asset.id == checkout_info.assetid).update(values={
                         'asset_status': 'Available'})
-
+                print('delete checkout')
+                db.session.query(Checkout).filter(
+                    Checkout.assetid == checkout_info.assetid).delete()
+                print('commit')
                 db.session.commit()
                 return redirect(url_for('history'))
             except Exception as e:
