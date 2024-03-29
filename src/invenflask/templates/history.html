@@ -19,8 +19,8 @@
           <td>{{ asset.staffid }}</td>
           <td>{{ asset.department }}</td>
           <td>{{ asset.division }}</td>
-          <td>{{ moment(asset.checkouttime, local=True).format('LLL') }}</td>
-          <td>{{ moment(asset.returntime, local=True).format('LLL') }}</td>
+          <td>{{ moment(timestamp=asset.checkouttime).format('LLL') }}</td>
+          <td>{{ moment(timestamp=asset.returntime).format('LLL') }}</td>
           </td>
         </tr>
       {% endfor %}
