@@ -5,6 +5,7 @@
     <title>{% block title %} {% endblock %}AssetCheckout</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/min.css') }}">
     {{ bootstrap.load_css() }}
+    {{ moment.include_moment() }}
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('index') }}">Asset Manager</a>
@@ -66,7 +67,6 @@
 </head>
 
 <body {{ load_checkout|safe if load_checkout is not none else 'NONE'  }} >
-    {{moment.include_moment()}}
     <hr>
     <div class="content">
         {% with messages = get_flashed_messages(with_categories=true) %}
