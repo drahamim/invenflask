@@ -28,6 +28,6 @@ sqlalchemy      == 2.0.29
 flask-sqlalchemy >= 3.0.1
 psycopg2-binary == 2.9.9
 flask-migrate   == 4.0.7
-gunicorn        == 21.2.0
+gunicorn        == 22.0.0
 flask-moment   == 1.0.5
 flask-WTF      == 1.2.1
