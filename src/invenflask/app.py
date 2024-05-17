@@ -53,24 +53,6 @@ def get_version():
             capture_output=True).stdout.decode('utf-8').strip())
     return dict(app_version=version("invenflask"))
 
-
-@app.route('/')
-def index():
-    assets = db.session.query(Asset).all()
-    asset_total = db.session.query(Asset).count()
-    asset_types = db.session.query(
-        Asset.asset_type, db.func.count()).group_by(Asset.asset_type).all()
-    asset_status = db.session.query(
-        Asset.asset_type,
-        db.func.count().label('TotalCount'),
-        db.func.sum(db.case((Asset.asset_status == 'checkedout', 1), else_=0)).label(
-            'AvailCount')
-    ).group_by(Asset.asset_type).all()
-    checkouts = db.session.query(Checkout).all()
-    return render_template(
-        'index.html', assets=assets, asset_total=asset_total,
-        asset_type=asset_types, asset_status=asset_status, checkouts=checkouts)
-
 # ASSET ROUTES
 
 
@@ -311,8 +293,16 @@ def return_asset():
                 db.session.query(Checkout).filter(
                     Checkout.assetid == checkout_info.assetid).delete()
                 print('commit')
+                current_checkouts = db.session.query(Checkout).filter(
+                    Checkout.staffid == staffer.id).all()
                 db.session.commit()
-                return redirect(url_for('history'))
+                if not current_checkouts:
+                    flash('Asset was successfully returned!', "success")
+                    return redirect(url_for('return_asset'))
+                else:
+                    flash('Asset was successfully returned!', "success")
+                    flash('Staffer still has assets checked out', "warning")
+                    return redirect(url_for('return_asset'))
             except Exception as e:
                 app.logger.error(e)
                 flash("Return failed", 'warning')
