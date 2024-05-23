@@ -409,7 +409,6 @@ def parseCSV_staff(filePath, first_name=False, last_name_col=False, staff_id=Fal
     for i, row in csvData.iterrows():
         try:
             last_name = "" if last_name_col is None else row[last_name_col]
-            #last_name = row[last_name] if last_name else ""
             division = row[division_col] if division_col else ""
             title = row[title_col] if title_col else ""
 
