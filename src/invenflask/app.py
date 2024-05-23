@@ -56,6 +56,24 @@ def get_version():
 # ASSET ROUTES
 
 
+@app.route('/')
+def index():
+    assets = db.session.query(Asset).all()
+    asset_total = db.session.query(Asset).count()
+    asset_types = db.session.query(
+        Asset.asset_type, db.func.count()).group_by(Asset.asset_type).all()
+    asset_status = db.session.query(
+        Asset.asset_type,
+        db.func.count().label('TotalCount'),
+        db.func.sum(db.case((Asset.asset_status == 'checkedout', 1), else_=0)).label(
+            'AvailCount')
+    ).group_by(Asset.asset_type).all()
+    checkouts = db.session.query(Checkout).all()
+    return render_template(
+        'index.html', assets=assets, asset_total=asset_total,
+        asset_type=asset_types, asset_status=asset_status, checkouts=checkouts)
+
+
 @app.route('/create/asset', methods=('GET', 'POST'))
 def asset_create():
 
