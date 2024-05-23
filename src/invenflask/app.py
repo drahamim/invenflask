@@ -56,6 +56,24 @@ def get_version():
 # ASSET ROUTES
 
 
+@app.route('/')
+def index():
+    assets = db.session.query(Asset).all()
+    asset_total = db.session.query(Asset).count()
+    asset_types = db.session.query(
+        Asset.asset_type, db.func.count()).group_by(Asset.asset_type).all()
+    asset_status = db.session.query(
+        Asset.asset_type,
+        db.func.count().label('TotalCount'),
+        db.func.sum(db.case((Asset.asset_status == 'checkedout', 1), else_=0)).label(
+            'AvailCount')
+    ).group_by(Asset.asset_type).all()
+    checkouts = db.session.query(Checkout).all()
+    return render_template(
+        'index.html', assets=assets, asset_total=asset_total,
+        asset_type=asset_types, asset_status=asset_status, checkouts=checkouts)
+
+
 @app.route('/create/asset', methods=('GET', 'POST'))
 def asset_create():
 
@@ -385,13 +403,14 @@ def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
     return redirect(url_for('assets'))
 
 
-def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, division=False, department=False, title=False):
+def parseCSV_staff(filePath, first_name=False, last_name_col=False, staff_id=False,
+                   division_col=False, department=False, title_col=False):
     csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
     for i, row in csvData.iterrows():
         try:
-            last_name = row[last_name] if last_name else ""
-            division = row[division] if division else ""
-            title = row[title] if title else ""
+            last_name = "" if last_name_col is None else row[last_name_col]
+            division = row[division_col] if division_col else ""
+            title = row[title_col] if title_col else ""
 
             staff = Staff(id=row[staff_id], first_name=row[first_name], last_name=last_name,
                           division=division, department=row[department], title=title)
