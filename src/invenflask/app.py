@@ -403,13 +403,15 @@ def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
     return redirect(url_for('assets'))
 
 
-def parseCSV_staff(filePath, first_name=False, last_name=False, staff_id=False, division=False, department=False, title=False):
+def parseCSV_staff(filePath, first_name=False, last_name_col=False, staff_id=False,
+                   division_col=False, department=False, title_col=False):
     csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
     for i, row in csvData.iterrows():
         try:
-            last_name = row[last_name] if last_name else ""
-            division = row[division] if division else ""
-            title = row[title] if title else ""
+            last_name = "" if last_name_col is None else row[last_name_col]
+            #last_name = row[last_name] if last_name else ""
+            division = row[division_col] if division_col else ""
+            title = row[title_col] if title_col else ""
 
             staff = Staff(id=row[staff_id], first_name=row[first_name], last_name=last_name,
                           division=division, department=row[department], title=title)
