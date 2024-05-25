@@ -68,7 +68,7 @@ def index():
         db.func.sum(db.case((Asset.asset_status == 'checkedout', 1), else_=0)).label(
             'AvailCount')
     ).group_by(Asset.asset_type).all()
-    checkouts = db.session.query(Checkout).all()
+    checkouts = db.session.query(Checkout).order_by('timestamp').all()
     return render_template(
         'index.html', assets=assets, asset_total=asset_total,
         asset_type=asset_types, asset_status=asset_status, checkouts=checkouts)
@@ -168,7 +168,7 @@ def staff_create():
 
 @ app.route('/staffs')
 def staffs():
-    staff_list = db.session.query(Staff).all()
+    staff_list = db.session.query(Staff).order_by('id').all()
     return render_template('staff.html', staffs=staff_list)
 
 
@@ -334,7 +334,7 @@ def return_asset():
 @ app.route('/history')
 def history():
     try:
-        history_list = db.session.query(History).all()
+        history_list = db.session.query(History).order_by('returntime').all()
         db.session.commit()
     except Exception as e:
         app.logger.error(e)
@@ -355,11 +355,11 @@ def single_history(rq_type, item_id):
     if rq_type == 'asset':
         item_info = db.session.query(Asset).get(item_id)
         current = db.session.query(Checkout).filter_by(assetid=item_id).all()
-        history = db.session.query(History).filter_by(assetid=item_id).all()
+        history = db.session.query(History).order_by('returntime').filter_by(assetid=item_id).all()
     elif rq_type == 'staff':
         item_info = db.session.query(Staff).get(item_id)
         current = db.session.query(Checkout).filter_by(staffid=item_id).all()
-        history = db.session.query(History).filter_by(staffid=item_id).all()
+        history = db.session.query(History).order_by('returntime').filter_by(staffid=item_id).all()
     return render_template(
         'single_history.html', hist_type=rq_type,
         current=current, history=history, item_info=item_info
