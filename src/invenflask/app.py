@@ -318,8 +318,9 @@ def return_asset():
                     flash('Asset was successfully returned!', "success")
                     return redirect(url_for('return_asset'))
                 else:
+                    assets_still_out = len(current_checkouts)
                     flash('Asset was successfully returned!', "success")
-                    flash('Staffer still has assets checked out', "warning")
+                    flash(f'Staffer still has {assets_still_out} assets checked out', "warning")
                     return redirect(url_for('return_asset'))
             except Exception as e:
                 app.logger.error(e)
@@ -408,7 +409,7 @@ def parseCSV_staff(filePath, first_name=False, last_name_col=False, staff_id=Fal
     csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
     for i, row in csvData.iterrows():
         try:
-            last_name = row[last_name_col] if last_name_col  else ""
+            last_name = row[last_name_col] if last_name_col else ""
             division = row[division_col] if division_col else ""
             title = row[title_col] if title_col else ""
 
