@@ -409,7 +409,7 @@ def parseCSV_staff(filePath, first_name=False, last_name_col=False, staff_id=Fal
     csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
     for i, row in csvData.iterrows():
         try:
-            last_name = row[last_name_col] if last_name_col  else ""
+            last_name = row[last_name_col] if last_name_col else ""
             division = row[division_col] if division_col else ""
             title = row[title_col] if title_col else ""
 
