@@ -318,8 +318,9 @@ def return_asset():
                     flash('Asset was successfully returned!', "success")
                     return redirect(url_for('return_asset'))
                 else:
+                    assets_still_out = len(current_checkouts)
                     flash('Asset was successfully returned!', "success")
-                    flash('Staffer still has assets checked out', "warning")
+                    flash(f'Staffer still has {assets_still_out} assets checked out', "warning")
                     return redirect(url_for('return_asset'))
             except Exception as e:
                 app.logger.error(e)
