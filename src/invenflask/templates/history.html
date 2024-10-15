@@ -15,8 +15,8 @@
     <tbody>
       {% for asset in assets %}
         <tr>
-          <td>{{ asset.assetid }}</td>
-          <td>{{ asset.staffid }}</td>
+          <td><a href='/single_history/asset/{{asset.assetid}}'> {{ asset.assetid }}</a></td>
+          <td><a href='/single_history/asset/{{asset.staffid}}'>{{ asset.staffid }}</a></td>
           <td>{{ asset.department }}</td>
           <td>{{ asset.division }}</td>
           <td>{{ moment(timestamp=asset.checkouttime).format('LLL') }}</td>
