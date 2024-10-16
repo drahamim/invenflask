@@ -37,7 +37,7 @@
       {% for item in checkouts %}
         <tr>
           <td><a href='/single_history/asset/{{item.assetid}}'> {{ item.assetid }}</a></td>
-          <td><a href='/single_history/asset/{{item.staffid}}'>{{ item.staffid }}</a></td>
+          <td><a href='/single_history/staff/{{item.staffid}}'>{{ item.staffid }}</a></td>
           <td>{{ item.department }}</td>
           <td>{{ moment(item.timestamp).format('LLL') }}</td>
           </td>
