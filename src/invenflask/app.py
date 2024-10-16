@@ -320,7 +320,8 @@ def return_asset():
                 else:
                     assets_still_out = len(current_checkouts)
                     flash('Asset was successfully returned!', "success")
-                    flash(f'Staffer still has {assets_still_out} assets checked out', "warning")
+                    flash(
+                        f'Staffer still has {assets_still_out} assets checked out', "warning")
                     return redirect(url_for('return_asset'))
             except Exception as e:
                 app.logger.error(e)
@@ -356,11 +357,13 @@ def single_history(rq_type, item_id):
     if rq_type == 'asset':
         item_info = db.session.query(Asset).get(item_id)
         current = db.session.query(Checkout).filter_by(assetid=item_id).all()
-        history = db.session.query(History).order_by('returntime').filter_by(assetid=item_id).all()
+        history = db.session.query(History).order_by(
+            'returntime').filter_by(assetid=item_id).all()
     elif rq_type == 'staff':
         item_info = db.session.query(Staff).get(item_id)
         current = db.session.query(Checkout).filter_by(staffid=item_id).all()
-        history = db.session.query(History).order_by('returntime').filter_by(staffid=item_id).all()
+        history = db.session.query(History).order_by(
+            'returntime').filter_by(staffid=item_id).all()
     return render_template(
         'single_history.html', hist_type=rq_type,
         current=current, history=history, item_info=item_info
@@ -478,3 +481,45 @@ def settings():
         form.timezone.data = db.session.query(GlobalSet).filter(
             GlobalSet.settingid == "timezone").first().setting
     return render_template('settings.html', title='Settings', form=form)
+
+
+@app.route('/search', methods=["GET", "POST"])
+def search():
+    app.logger.info('Search request')
+    query = request.args.get('query')
+    app.logger.info
+    (f'Search request: {query}')
+    query = str(query)
+    asset = db.session.query(Asset).filter(
+        func.lower(Asset.id).like(f"%{query.lower()}%")).all()
+    staff = db.session.query(Staff).filter(
+        func.lower(Staff.id).like(f"%{query.lower()}%")).all()
+    db.session.commit()
+    print(asset)
+    print(staff)
+
+    if len(asset) == 1 and len(staff) == 0:
+        app.logger.info
+        (f'Asset found: {query}')
+        return redirect(url_for('single_history',
+                                rq_type='asset', item_id=asset[0].id))
+    elif len(staff) == 1 and len(asset) == 0:
+        app.logger.info
+        (f'Staff found: {query}')
+        app.logger.info
+        (staff[0].id)
+        return redirect(url_for('single_history',                             rq_type='staff', item_id=staff[0].id))
+    elif not asset and not staff:
+        flash('No results found', 'warning')
+        app.logger.info
+        ('No results found')
+        return redirect(url_for('index'))
+    else:
+        flash("multiple results found", 'warning')
+        app.logger.info
+        ('multiple results found')
+        app.logger.info
+        (len(asset))
+        app.logger.info
+        (len(staff))
+        return render_template('search.html', assets=asset, staff=staff)
