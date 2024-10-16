@@ -508,7 +508,7 @@ def search():
         (f'Staff found: {query}')
         app.logger.info
         (staff[0].id)
-        return redirect(url_for('single_history',                             
+        return redirect(url_for('single_history',
                                 rq_type='staff', item_id=staff[0].id))
     elif not asset and not staff:
         flash('No results found', 'warning')
