@@ -3,7 +3,7 @@
 {% block content %}
 {% if hist_type == 'staff' %}
 <h1>Staff History</h1>
-
+<button type="button" class="btn btn-secondary my-2 my-sm-0" onclick=location.href="{{ url_for('staff_edit', staff_id=item_info.id) }}">Edit Staff</button>
 <table id="Staff" class="table table-striped">
   <thead>
     <tr>
@@ -69,7 +69,8 @@
 {% else %}
 
 
-<h1> Asset History </h1>
+<h1> Asset History </h1> 
+<button type="button" class="btn btn-secondary my-2 my-sm-0" onclick=location.href="{{ url_for('asset_edit', asset_id=item_info.id) }}">Edit Asset</button>
 <table id="Assets" class="table table-striped">
   <thead>
     <tr>
