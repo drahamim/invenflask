@@ -65,7 +65,8 @@ def index():
     asset_status = db.session.query(
         Asset.asset_type,
         db.func.count().label('TotalCount'),
-        db.func.sum(db.case((Asset.asset_status == 'checkedout', 1), else_=0)).label(
+        db.func.sum(db.case(
+            (Asset.asset_status == 'checkedout', 1), else_=0)).label(
             'AvailCount')
     ).group_by(Asset.asset_type).all()
     checkouts = db.session.query(Checkout).order_by('timestamp').all()
@@ -325,9 +326,17 @@ def return_asset():
                     return redirect(url_for('return_asset'))
             except Exception as e:
                 app.logger.error(e)
-                flash("Return failed", 'warning')
-                return redirect(url_for('return_asset'))
-
+                asset_valid = db.session.query(Asset).filter(
+                    func.lower(Asset.id) == asset_id.lower()).first()
+                if not checkout_info and asset_valid:
+                    flash('Asset not checked out', 'warning')
+                    return redirect(url_for('return_asset'))
+                elif not checkout_info and not asset_valid:
+                    flash('Asset does not exist', 'warning')
+                    return redirect(url_for('return_asset'))
+                else:
+                    flash("Return failed", 'warning')
+                    return redirect(url_for('return_asset'))
     return render_template('return.html')
 
 # READ ROUTES
