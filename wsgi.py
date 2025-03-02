@@ -1,4 +1,4 @@
-from src.invenflask.app import app as application
+from src.conram.app import app as application
 
 app = application
 

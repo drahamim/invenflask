@@ -46,12 +46,12 @@ migrate = Migrate(app, db)
 @app.context_processor
 def get_version():
     try:
-        version("invenflask")
+        version("ConRAM")
     except PackageNotFoundError:
         return dict(app_version=subprocess.run(
             ["git", "describe", "--tags", "--abbrev=0"],
             capture_output=True).stdout.decode('utf-8').strip())
-    return dict(app_version=version("invenflask"))
+    return dict(app_version=version("ConRAM"))
 
 # ASSET ROUTES
 
@@ -84,10 +84,14 @@ def asset_create():
         asset_status = request.form['asset_status']
 
         if not asset_id or not asset_status or not asset_type:
-            flash('All fields are required', "warning")
+            flash(
+                'All fields are required',
+                "warning")
         if db.session.query(Asset).filter(
                 func.lower(Asset.id) == asset_id.lower()).all():
-            flash('Asset already exists', "warning")
+            flash(
+                'Asset already exists',
+                "warning")
             return redirect(url_for('asset_create'))
         else:
             try:
@@ -96,11 +100,13 @@ def asset_create():
                 db.session.add(new_asset)
                 db.session.commit()
                 flash(
+
                     f'Asset "{asset_id}" was successfully created!', "success")
                 return redirect(url_for('assets'))
             except Exception as e:
                 app.logger.error(e)
-                flash("Asset creation failed", 'warning')
+                flash(
+                    "Asset creation failed", 'warning')
                 return redirect(url_for('asset_create'))
 
     return render_template('asset_create.html')
@@ -128,7 +134,8 @@ def asset_edit(asset_id):
 def asset_delete(asset_id):
     db.session.delete(Asset.query.get(asset_id))
     db.session.commit()
-    flash(f'Asset "{asset_id}" was successfully deleted!', "success")
+    flash(
+        f'Asset "{asset_id}" was successfully deleted!', "success")
     return redirect(url_for('assets'))
 
 # STAFF ROUTES
@@ -146,11 +153,15 @@ def staff_create():
         title = request.form['title']
 
         if not staff_id or not first_name:
-            flash('All fields are required', "warning")
+            flash(
+                'All fields are required',
+                "warning")
 
         if db.session.query(Staff).filter(
                 func.lower(Staff.id) == staff_id.lower()).all():
-            flash('Staff already exists', "warning")
+            flash(
+                'Staff already exists',
+                "warning")
             return redirect(url_for('staff_create'))
         else:
             try:
@@ -161,13 +172,14 @@ def staff_create():
                 return redirect(url_for('staffs'))
             except Exception as e:
                 app.logger.error(e)
-                flash("Staff already exists", 'warning')
+                flash(
+                    "Staff already exists", 'warning')
                 return redirect(url_for('staff_create'))
 
     return render_template('staff_create.html')
 
 
-@ app.route('/staffs')
+@app.route('/staffs')
 def staffs():
     staff_list = db.session.query(Staff).order_by('id').all()
     return render_template('staff.html', staffs=staff_list)
@@ -198,7 +210,8 @@ def staff_edit(staff_id):
 #     staffs = Table('staffs', MetaData(bind=engine), autoload=True)
 #     db_session.execute(delete(staffs).where(staffs.c.staff_id == staff_id))
 #     db_session.commit()
-#     flash(f'Staff "{staff_id}" was successfully deleted!', "success")
+#     flash(
+# f'Staff "{staff_id}" was successfully deleted!', "success")
 #     return redirect(url_for('staffs'))
 
 # ACTION ROUTES
@@ -212,31 +225,45 @@ def checkout():
         staff_id = request.form['staffid']
         accessory_id = request.form['accessoryid']
         if not asset_id or not staff_id:
-            flash('Staff and or Asset fields are required', "warning")
+            flash(
+                'Staff and or Asset fields are required',
+                "warning")
         if not db.session.query(db.session.query(Asset).filter(
                 func.lower(Asset.id) == asset_id.lower()).exists()
         ).scalar():
-            flash('Asset does not exist', "warning")
+            flash(
+                'Asset does not exist',
+                "warning")
             return render_template('checkout.html')
         if not db.session.query(db.session.query(Staff).filter(
                 func.lower(Staff.id) == staff_id.lower()).exists()
         ).scalar():
-            flash('Staff does not exist', "warning")
+            flash(
+                'Staff does not exist',
+                "warning")
             return render_template('checkout.html')
         if accessory_id:
             if not db.session.query(db.session.query(Asset).filter(
                     func.lower(Asset.id) == accessory_id.lower()).exists()
             ).scalar() and accessory_id != '':
-                flash('Accessory does not exist', "warning")
+                flash(
+                    'Accessory does not exist',
+                    "warning")
                 return render_template('checkout.html')
             if db.session.query(Checkout).filter(func.lower(
-                    func.lower(Checkout.assetid)) == accessory_id.lower()).first():
-                flash('Accessory already checked out no checkouts saved', "warning")
+                    func.lower(Checkout.assetid)
+            ) == accessory_id.lower()).first():
+                flash(
+
+                    'Accessory already checked out no checkouts saved',
+                    "warning")
                 return render_template('checkout.html')
 
         if db.session.query(Checkout).filter(func.lower(
                 func.lower(Checkout.assetid)) == asset_id.lower()).first():
-            flash('Asset already checked out no checkouts saved', "warning")
+            flash(
+                'Asset already checked out no checkouts saved',
+                "warning")
             return render_template('checkout.html')
 
         else:
@@ -269,11 +296,13 @@ def checkout():
                             'asset_status': 'checkedout'})
 
                 db.session.commit()
-                flash('Asset was successfully checked out!', "success")
+                flash(
+                    'Asset was successfully checked out!', "success")
                 return redirect(url_for('checkout'))
             except Exception as e:
                 app.logger.error(e)
-                flash("Checkout failed", 'warning')
+                flash(
+                    "Checkout failed", 'warning')
                 return redirect(url_for('checkout'))
 
     return render_template('checkout.html')
@@ -285,15 +314,19 @@ def return_asset():
         asset_id = request.form['id']
 
         if not asset_id:
-            flash('Asset ID is required', "warning")
+            flash(
+                'Asset ID is required',
+                "warning")
         else:
             try:
                 print('get checkout info')
                 checkout_info = db.session.query(Checkout).filter(
-                    func.lower(Checkout.assetid) == asset_id.lower()).first()
+                    func.lower(Checkout.assetid) == asset_id.lower()
+                ).first()
                 print('get staffer info')
                 staffer = db.session.query(Staff).filter(
-                    func.lower(Staff.id) == checkout_info.staffid.lower()).first()
+                    func.lower(Staff.id) == checkout_info.staffid.lower()
+                ).first()
 
                 print('add history')
                 db.session.add(History(
@@ -316,45 +349,52 @@ def return_asset():
                     Checkout.staffid == staffer.id).all()
                 db.session.commit()
                 if not current_checkouts:
-                    flash('Asset was successfully returned!', "success")
+                    flash(
+                        'Asset was successfully returned!', "success")
                     return redirect(url_for('return_asset'))
                 else:
                     assets_still_out = len(current_checkouts)
-                    flash('Asset was successfully returned!', "success")
                     flash(
-                        f'Staffer still has {assets_still_out} assets checked out', "warning")
+                        'Asset was successfully returned!', "success")
+                    flash(
+                        f'Staffer still has {assets_still_out} assets checked out',
+                        "warning")
                     return redirect(url_for('return_asset'))
             except Exception as e:
                 app.logger.error(e)
                 asset_valid = db.session.query(Asset).filter(
                     func.lower(Asset.id) == asset_id.lower()).first()
                 if not checkout_info and asset_valid:
-                    flash('Asset not checked out', 'warning')
+                    flash(
+                        'Asset not checked out', 'warning')
                     return redirect(url_for('return_asset'))
                 elif not checkout_info and not asset_valid:
-                    flash('Asset does not exist', 'warning')
+                    flash(
+                        'Asset does not exist', 'warning')
                     return redirect(url_for('return_asset'))
                 else:
-                    flash("Return failed", 'warning')
+                    flash(
+                        "Return failed", 'warning')
                     return redirect(url_for('return_asset'))
     return render_template('return.html')
 
 # READ ROUTES
 
 
-@ app.route('/history')
+@app.route('/history')
 def history():
     try:
         history_list = db.session.query(History).order_by('returntime').all()
         db.session.commit()
     except Exception as e:
         app.logger.error(e)
-        flash("History not found", 'warning')
+        flash(
+            "History not found", 'warning')
         return redirect(url_for('history'))
     return render_template('history.html', assets=history_list)
 
 
-@ app.route('/assets')
+@app.route('/assets')
 def assets():
     asset_list = Asset.query.all()
     return render_template('status.html', assets=asset_list)
@@ -380,7 +420,7 @@ def single_history(rq_type, item_id):
 
 
 # IMPORT TASKS
-@ app.route('/bulk_import', methods=('GET', 'POST'))
+@app.route('/bulk_import', methods=('GET', 'POST'))
 def bulk_import():
     if request.method == 'POST':
         uploaded_file = request.files.get('file')
@@ -411,13 +451,17 @@ def parseCSV_assets(filePath, asset_id, asset_type, asset_status):
         except IntegrityError as e:
             app.logger.error(e)
             flash(
-                "Asset upload failed import. This mabe be due to ID conflicts", "danger")
+
+                "Asset upload failed import. This mabe be due to ID conflicts",
+                "danger")
             return redirect(url_for('asset_create'))
     return redirect(url_for('assets'))
 
 
-def parseCSV_staff(filePath, first_name=False, last_name_col=False, staff_id=False,
-                   division_col=False, department=False, title_col=False):
+def parseCSV_staff(
+        filePath, first_name=False,
+        last_name_col=False, staff_id=False,
+        division_col=False, department=False, title_col=False):
     csvData = pd.read_csv(filePath, header=0, keep_default_na=False)
     for i, row in csvData.iterrows():
         try:
@@ -425,18 +469,21 @@ def parseCSV_staff(filePath, first_name=False, last_name_col=False, staff_id=Fal
             division = row[division_col] if division_col else ""
             title = row[title_col] if title_col else ""
 
-            staff = Staff(id=row[staff_id], first_name=row[first_name], last_name=last_name,
-                          division=division, department=row[department], title=title)
+            staff = Staff(id=row[staff_id], first_name=row[first_name],
+                          last_name=last_name, division=division,
+                          department=row[department], title=title)
             db.session.add(staff)
             db.session.commit()
         except IntegrityError:
             flash(
-                "Staff upload failed import. This may be due to ID conflicts.", "danger")
+
+                "Staff upload failed import. This may be due to ID conflicts.",
+                "danger")
             return redirect(url_for('staff_create'))
     return redirect(url_for('staffs'))
 
 
-@ app.route('/show_data', methods=["GET", "POST"])
+@app.route('/show_data', methods=["GET", "POST"])
 def showData():
     # Retrieving uploaded file path from session
     data_file_path = session.get('uploaded_data_file_path', None)
@@ -484,7 +531,8 @@ def settings():
         tz = GlobalSet.query.filter_by(settingid="timezone").first()
         tz.setting = form.timezone.data
         db.session.commit()
-        flash('Your settings have been updated.')
+        flash(
+            'Your settings have been updated.')
         return redirect(url_for('settings'))
     elif request.method == 'GET':
         form.timezone.data = db.session.query(GlobalSet).filter(
@@ -520,12 +568,14 @@ def search():
         return redirect(url_for('single_history',
                                 rq_type='staff', item_id=staff[0].id))
     elif not asset and not staff:
-        flash('No results found', 'warning')
+        flash(
+            'No results found', 'warning')
         app.logger.info
         ('No results found')
         return redirect(url_for('index'))
     else:
-        flash("multiple results found", 'warning')
+        flash(
+            "multiple results found", 'warning')
         app.logger.info
         ('multiple results found')
         app.logger.info

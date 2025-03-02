@@ -1,7 +1,7 @@
-# Invenflask
-[![Release](https://github.com/drahamim/invenflask/actions/workflows/release.yml/badge.svg)](https://github.com/drahamim/invenflask/actions/workflows/release.yml)
+# Conram
+[![Release](https://github.com/drahamim/conram/actions/workflows/release.yml/badge.svg)](https://github.com/drahamim/conram/actions/workflows/release.yml)
 
-A small inventory ledger, based on Flask. Intitally designed for Radio Checkout at various conventions. 
+A small inventory ledger, based on Flask. Intitally designed for Radio Asset Management at various conventions. 
 
 ## Features
 - Easy Checkin/Out functionality
@@ -67,5 +67,5 @@ For development, perform an _editable install_
 4. Run `pip install -e .`
 5. Start a development server:
    ```
-   venv/bin/flask --app invenflask.app run
+   venv/bin/flask --app conram.app run
    ```
