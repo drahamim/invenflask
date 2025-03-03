@@ -1,0 +1,32 @@
+[project]
+name = "invenflask"
+dynamic = ["version"]
+authors = [
+    { name = "Daniel Rahamim" }
+]
+description = "A Flask-based asset checkin/checkout system"
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "flask >=2.2.2, <4",
+    "toml >=0.10.2, <1",
+    "pandas ==2.2.3",
+    "flask-assets >=2.0",
+    "Bootstrap-flask >=2.2.0",
+    "wheel >=0"
+
+]
+
+[project.scripts]
+invenflask-init-db = "invenflask.init_db:main"
+
+[project.urls]
+"Bug Tracker" = "https://github.com/drahamim/invenflask/issues"
+
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=7.1"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/invenflask/_version.py"

@@ -105,9 +105,14 @@ venv.bak/
 
 # code editor stuff
 .vscode
+.idea/
 
 database.db
 
 .DS_Store
 
-config.toml
+config.py
+#ignore static folder for uploads
+static/uploads
+src/invenflask/_version.py
+uploads/*

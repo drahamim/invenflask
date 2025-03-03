@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Edit {{ staff.id }} {% endblock %}</h1>
+    <form method="post">
+        <label for="title">Staff ID</label>
+        <br>
+        <label for="firstname">First Name</label>
+        <br>
+        <input type="text" name="firstname"
+                value="{{ staff.first_name }}">
+            </input>
+        <br>
+        <label for="title">Last Name</label>
+        <br>
+        <input type="text" name="lastname"
+                value="{{ staff.last_name }}">
+            </input>
+        <br>
+        <label for="title">Title</label>
+        <br>
+        <input type="text" name="title"
+                value="{{ staff.title }}">
+            </input>
+        <br>
+        <label for="title">Division</label>
+        <br>
+        <input type="text" name="division"
+                value="{{ staff.division }}">
+            </input>
+        <br>
+        <label for="title">Department</label>
+        <br>
+        <input type="text" name="department"
+                value="{{ staff.department }}">
+            </input>
+        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+    </form>
+    <hr>    
+    </form>
+{% endblock %}

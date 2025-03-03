@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Edit {{ asset.id }} {% endblock %}</h1>
+    <form method="post">
+        <label for="type">Asset Type</label>
+       <br>
+       <select id="asset_type", name="asset_type">
+            <option value="{{asset.asset_type}}">{{asset.asset_type}}</option>
+            {% for asset_type in asset_types %}
+                {% if asset_type[0] != asset.asset_type %}
+                    <option value="{{ asset_type[0] }}">{{ asset_type[0] }}</option>
+                {% endif %}
+            {% endfor %}
+       </select>
+       <br>
+       <label for="status">Asset Status {{asset.asset_status}} </label>
+       <br>
+       <select id="asset_status" name="asset_status">
+              <option value="Available">Available</option>
+              <option value="Good">Good</option>
+              <option value="Damaged">Damaged</option>
+              <option value="checkedout">Checked Out</option>
+       </select>
+        <br>
+        <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+    </form>
+    <hr>
+    <form action="{{ url_for('asset_delete', asset_id=asset.id) }}" method="POST">
+        <input type="submit" value="Delete Asset" class="btn btn-primary btn-lg"
+                onclick="return confirm('Are you sure you want to delete this asset?')">
+    </form>
+{% endblock %}

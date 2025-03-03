@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{% block title %} {% endblock %}AssetCheckout</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/min.css') }}">
+    {{ bootstrap.load_css() }}
+    {{ moment.include_moment() }}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Asset Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('return_asset') }}">Check In
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('checkout') }}">Check Out
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false">Create</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ url_for('asset_create') }}">Create Asset</a>
+                            <a class="dropdown-item" href="{{ url_for('staff_create') }}">Create Staff</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ url_for('bulk_import') }}">Bulk Import</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false">status</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{{ url_for('assets') }}">Asset Status</a>
+                            <a class="dropdown-item" href="{{ url_for('staffs') }}">Staff List</a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('history') }}">History
+                        </a>
+                    </li>
+                </ul>
+                <!-- <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('settings') }}">Settings
+                </a>
+                </li> -->
+                
+                <form class="d-flex", method="GET" action="/search" >
+                <input class="form-control me-sm-2" type="text" name="query" placeholder="Search">
+                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+                </form> 
+            </div>
+        </div>
+    </nav>
+    {% block head %} 
+    {% endblock %}
+</head>
+
+<body {{ load_checkout|safe if load_checkout is not none else 'NONE'  }} >
+    <hr>
+    <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert bg-{{ category }}"> {{ message }} </div>
+            {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %} {% endblock %}
+    </div>
+    {{ bootstrap.load_js() }}
+</body>
+<footer> 
+{% block footer %}
+   <div class="float-start">
+        <span class="badge bg-primary">AppVersion: {{ app_version }}</span>
+  </div>
+{% endblock %} 
+</footer>
+</html>

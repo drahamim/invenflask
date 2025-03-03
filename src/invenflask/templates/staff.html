@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}  
+<table id="Staff" class="table table-striped">
+    <thead>
+      <tr>
+        <th style="text-align:left">First Name</th>
+        <th style="text-align:left">Last Name</th>
+        <th style="text-align:left">Staff ID</th>
+        <th style="text-align:left">Division</th>
+        <th style="text-align:left">Department</th>
+        <th style="text-align:left">Title</th>
+        <th style="text-align:left">Edit</th>
+        <th style="text-align:left">History</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for staff in staffs %}
+        <tr>
+          <td>{{ staff.first_name }}</td>
+          <td>{{ staff.last_name }}</td>
+          <td>{{ staff.id }}</td>
+          <td>{{ staff.division }}</td>
+          <td>{{ staff.department }}</td>
+          <td>{{ staff.title }}</td>
+          <td><button type="button" onclick=location.href="{{ url_for('staff_edit', staff_id=staff.id) }}">Edit</button>
+          </td>
+          <td><button type="button" onclick=location.href="{{ url_for('single_history', rq_type='staff', item_id=staff.id)}}">History</button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

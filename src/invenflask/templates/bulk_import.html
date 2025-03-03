@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Bulk Asset Create {% endblock %}</h1>
+    <form method=post enctype=multipart/form-data>
+        <label>Select CSV data type:</label>
+        <select name="select_type",id="select_type">
+            <option value="assets">Assets</option>
+            <option value="staff">Staff</option>
+        </select>
+        <div class="form-group">
+            <label for="formFile" class="form-label-lg mt-4">Select CSV File</label>
+            <input class="form-control" type="file" id="formFile" name="file">
+        </div>
+        <p><input type=submit  value=Submit class="btn btn-primary btn-lg"></p>
+    </form>
+{% endblock %}
+
+
+
+<div class="form-group">
+    <label class="col-form-label mt-4" for="inputDefault">Default input</label>
+    <input type="text" class="form-control" placeholder="Default input" id="inputDefault">
+  </div>
+
+  <div class="form-group">
+    <label for="formFile" class="form-label mt-4">Default file input example</label>
+    <input class="form-control" type="file" id="formFile" name="file">
+  </div>

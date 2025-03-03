@@ -1,4 +1,0 @@
-sqlite3 database.db
-sqlite> .mode csv
-sqlite> .import ./test_data/convertcsv.csv
-sqlite> SELECT * from staffs;

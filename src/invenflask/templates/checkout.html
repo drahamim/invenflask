@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+
+{% endblock %}
+
+{% block content %}
+<script type="text/javascript">
+
+    // Focus on Staff ID on load
+    function FocusOnLoad() {
+        document.getElementById("staffid").focus();
+    }
+
+    // Focus on Radio ID on [enter]
+    function runScript(e) {
+        if (e.keyCode == 13) {
+            document.getElementById("radio").focus();
+            return false;
+        }
+    }
+
+    // Focus on Headset ID on [enter]
+    function runScript1(e) {
+        if (e.keyCode == 13) {
+            document.getElementById("accessory").focus();
+            return false;
+        }
+    }
+    theform.setAttribute("autocomplete", "off");
+</script>
+
+<h1>{% block title %} Checkout Asset {% endblock %}</h1>
+<form method="POST" id='theform' , class="a-form">
+    <label for="type">Staff ID</label>
+    <br>
+    <input type="text" id="staffid" name="staffid" placeholder="Staff ID"
+        value="{{ request.form[staffid]}}" autocomplete="off"
+        onkeypress="return runScript(event);" autofocus></input>
+    <br>
+
+    <label for="title">Asset ID</label>
+    <br>
+    <input type="text" id="radio" name="id" placeholder="Asset ID" 
+        value="{{ request.form['id'] }}" autocomplete="off"
+        onkeypress="return runScript1(event);"></input>
+    <br>
+
+    <label for="title">Accessory (Optional)</label>
+    <br>
+    <input type="text" id="accessory" name="accessoryid" placeholder="Accessory ID"
+        value="{{ request.form['accessoryid'] }}" autocomplete="off"></input>
+    <br>
+    <button type="submit" class="btn btn-primary btn-lg">Checkout</button>
+</form>
+{% endblock %}

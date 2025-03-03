@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>{% block title %} Search {% endblock %}</h1>
+<h4>Staff</h4>
+<table id="staff" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Staff ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Division</th>
+        <th>Department</th>
+        <th>Title</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for person in staff %}
+        <tr>
+          <td><a href='/single_history/staff/{{person.id}}'> {{ person.id }}</a></td>
+          <td>{{ person.first_name }}</td>
+          <td>{{ person.last_name }}</td>
+          <td>{{ person.division }}</td>
+          <td>{{ person.department }}</td>
+          <td>{{ person.title }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+
+    <h4>Assets</h4>
+    <table id="assets" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Asset ID</th>
+            <th>Asset Type</th>
+            <th>Asset Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in assets %}
+            <tr>
+              <td><a href='/single_history/asset/{{item.id}}'> {{ item.id }}</a></td>
+              <td>{{ item.asset_type }}</td>
+              <td>{{ item.asset_status }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        </table>
+{% endblock %}

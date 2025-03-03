@@ -8,19 +8,19 @@
         <th>staff ID</th>
         <th>Department</th>
         <th>Division</th>
-        <th>CheckoutTime</th>
-        <th>ReturnTime</th>
+        <th><div>Checkout Time</div><div>Browser Local</div></th>
+        <th><div>Return Time</div><div>Browser Local</div></th>
       </tr>
     </thead>
     <tbody>
       {% for asset in assets %}
         <tr>
-          <td>{{ asset.assetid }}</td>
-          <td>{{ asset.staffid }}</td>
+          <td><a href='/single_history/asset/{{asset.assetid}}'> {{ asset.assetid }}</a></td>
+          <td><a href='/single_history/staff/{{asset.staffid}}'>{{ asset.staffid }}</a></td>
           <td>{{ asset.department }}</td>
           <td>{{ asset.division }}</td>
-          <td>{{ asset.checkouttime }}</td>
-          <td>{{ asset.returntime }}</td>
+          <td>{{ moment(timestamp=asset.checkouttime).format('LLL') }}</td>
+          <td>{{ moment(timestamp=asset.returntime).format('LLL') }}</td>
           </td>
         </tr>
       {% endfor %}

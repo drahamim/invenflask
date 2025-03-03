@@ -1,0 +1,2 @@
+include src/invenflask/schema.sql
+include src/invenflask/templates/*.html

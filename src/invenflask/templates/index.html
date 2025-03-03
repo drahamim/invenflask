@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Asset Total "{{ asset_total }}" {% endblock %}</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th style="text-align:left">Category</th>
+        <th style="text-align:left">Total</th>
+        <th style="text-align:left">Checked Out</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset_type, TotalCount, AvailCount in asset_status %}
+        <tr>
+          <td>{{ asset_type }}</td>
+          <td>{{ TotalCount }}</td>
+          <td>{{ AvailCount }}</td>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+<h4>Checked Out Assets</h4>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th style="text-align:left">Asset ID</th>
+        <th style="text-align:left">Staff ID</th>
+        <th style="text-align:left">Department</th>
+        <th style="text-align:left">Checked Out</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in checkouts %}
+        <tr>
+          <td><a href='/single_history/asset/{{item.assetid}}'> {{ item.assetid }}</a></td>
+          <td><a href='/single_history/staff/{{item.staffid}}'>{{ item.staffid }}</a></td>
+          <td>{{ item.department }}</td>
+          <td>{{ moment(item.timestamp).format('LLL') }}</td>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+
+
+  {% endblock %}

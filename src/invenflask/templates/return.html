@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Checkin Asset {% endblock %}</h1>
+    <script>
+        window.onload = function () {
+            document.getElementById("id").focus();
+        };
+    </script>
+    <fieldset>
+        <form method="POST">
+            <div class="form-group">
+            <label class="form-lable mt-4" for="title">ID</label>
+            <br>
+            <input type="text" name="id"
+                placeholder="Asset ID" id="id"
+                value="{{ request.form['id'] }}"></input>
+            <br>
+            <button type="submit" class="btn btn-primary btn-lg">Checkin</button>
+            </div>
+        </form>
+    </fieldset>    
+{% endblock %}
+
