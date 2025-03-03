@@ -1,2 +1,2 @@
-include src/invenflask/schema.sql
-include src/invenflask/templates/*.html
+include src/conram/schema.sql
+include src/conram/templates/*.html

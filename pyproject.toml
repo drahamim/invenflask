@@ -1,10 +1,10 @@
 [project]
-name = "invenflask"
+name = "conram"
 dynamic = ["version"]
 authors = [
     { name = "Daniel Rahamim" }
 ]
-description = "A Flask-based asset checkin/checkout system"
+description = "A Flask-based Convention Radio Asset Manager"
 readme = "README.md"
 requires-python = ">=3.10"
 
@@ -19,14 +19,14 @@ dependencies = [
 ]
 
 [project.scripts]
-invenflask-init-db = "invenflask.init_db:main"
+conram-init-db = "conram.init_db:main"
 
 [project.urls]
-"Bug Tracker" = "https://github.com/drahamim/invenflask/issues"
+"Bug Tracker" = "https://github.com/drahamim/conram/issues"
 
 [build-system]
 requires = ["setuptools>=61.0", "setuptools_scm[toml]>=7.1"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "src/invenflask/_version.py"
+write_to = "src/conram/_version.py"
