@@ -15,7 +15,7 @@ pandas          == 2.2.3
 pip             == 25.0.1
 python-dateutil == 2.9.0.post0
 pytz            == 2025.1
-setuptools      == 75.8.0
+setuptools      == 75.8.2
 six             == 1.17.0
 toml            == 0.10.2
 typing_extensions == 4.12.2
